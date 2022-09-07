@@ -1,3 +1,5 @@
+// Anibal Ignacio Ventura Arocutipa
+// Computación Gráfica - CCOMP7-1
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
