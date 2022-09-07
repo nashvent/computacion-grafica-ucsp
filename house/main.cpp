@@ -113,7 +113,6 @@ int main()
         0, 1, 3,  // first Triangle
         1, 2, 3,   // second Triangle
         5, 6, 4, // roof
-        // 0, 3, 4, // roof
     };
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
