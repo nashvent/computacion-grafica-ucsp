@@ -119,19 +119,20 @@ int main()
 
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
-    float starPoints[] = {
-        0.0f, 0.5f, 0.0f, 
-        0.5f, 0.2f, 0.0f,
-        0.35f, -0.5f, 0.0f,
-        0.0f, -0.2f, 0.0f,
-        -0.35f, -0.5f, 0.0f,
-        -0.5f, 0.2f, 0.0f, 
+    float vertices[] = {
+         0.4f,  0.3f, 0.0f,  // top right
+         0.4f, -0.5f, 0.0f,  // bottom right
+        -0.4f, -0.5f, 0.0f,  // bottom left
+        -0.4f,  0.3f, 0.0f,   // top left
+        
+        0.00f, 0.9f, 0.0f, // Roof top
+        0.6f, 0.3f, 0.0f, // Roof left
+        -0.6f, 0.3f, 0.0f, // Roof right
     };
-
     unsigned int indices[] = {  // note that we start from 0!
-        0, 2, 3,
-        0, 4, 3,   
-        5, 3, 1,
+        0, 1, 3,  // first Triangle
+        1, 2, 3,   // second Triangle
+        5, 6, 4, // roof
     };
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
@@ -141,7 +142,7 @@ int main()
     glBindVertexArray(VAO);
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(starPoints), starPoints, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
@@ -196,8 +197,6 @@ int main()
 
 
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
-        
-
 
 
 
