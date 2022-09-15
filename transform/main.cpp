@@ -19,12 +19,21 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
+const GLchar* vertexShaderSource = R"glsl(
+    #version 150 core
+    in vec2 position;
+    in vec3 color;
+    in vec2 texcoord;
+    out vec3 Color;
+    out vec2 Texcoord;
+    uniform mat4 trans;
+    void main()
+    {
+        Color = color;
+        Texcoord = texcoord;
+        gl_Position = trans * vec4(position, 0.0, 1.0);
+    }
+)glsl";
 const char *fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
     "void main()\n"
@@ -34,6 +43,8 @@ const char *fragmentShaderSource = "#version 330 core\n"
 
 int main()
 {
+    auto t_start = std::chrono::high_resolution_clock::now();
+
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -136,6 +147,7 @@ int main()
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
     glEnableVertexAttribArray(0);
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -146,11 +158,17 @@ int main()
 
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
-    glBindVertexArray(0); 
 
+    GLint uniTrans = glGetUniformLocation(shaderProgram, "trans");
 
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+            // draw our first triangle
+    glUseProgram(shaderProgram);    
+    glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
+
 
     // render loop
     // -----------
@@ -165,28 +183,20 @@ int main()
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        // draw our first triangle
-        glUseProgram(shaderProgram);
+        auto t_now = std::chrono::high_resolution_clock::now();
+        float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
 
-        // Transform
-        glm::mat4 transform = glm::mat4(1.0f);
-        transform = glm::translate(transform, glm::vec3(0.5f, -0.5f, 0.0f));
-        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
-        // get their uniform location and set matrix (using glm::value_ptr)
-        unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transform));
+        glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::rotate(
+            trans,
+            time * glm::radians(180.0f),
+            glm::vec3(0.0f, 0.0f, 1.0f)
+        );
+        glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
 
-        glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
+
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
         
-
-        transform = glm::mat4(1.0f); // reset it to identity matrix
-        transform = glm::translate(transform, glm::vec3(-0.9f, 0.9f, 0.0f));
-        float scaleAmount = static_cast<float>(sin(glfwGetTime()));
-        transform = glm::scale(transform, glm::vec3(scaleAmount, scaleAmount, scaleAmount));
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &transform[0][0]); // this time take the matrix value array's first element as its memory pointer value
-
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
 
 
 
