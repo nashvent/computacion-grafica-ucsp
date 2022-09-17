@@ -19,6 +19,10 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+float xmove = 0;
+float ymove = 0;
+float zmove = 0;
+
 const GLchar* vertexShaderSource = R"glsl(
     #version 150 core
     in vec2 position;
@@ -165,7 +169,7 @@ int main()
     // uncomment this call to draw in wireframe polygons.
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-            // draw our first triangle
+    // draw our first triangle
     glUseProgram(shaderProgram);    
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
@@ -188,11 +192,15 @@ int main()
         float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
 
         glm::mat4 trans = glm::mat4(1.0f);
+        trans = glm::translate(trans, glm::vec3(xmove, ymove, zmove));
+        // time * glm::radians(180.0f);
         trans = glm::rotate(
             trans,
             time * glm::radians(180.0f),
             glm::vec3(0.0f, 0.0f, 1.0f)
         );
+
+        
         glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
 
 
@@ -227,6 +235,22 @@ void processInput(GLFWwindow *window)
 {
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+        xmove = xmove - 0.1f;
+    }
+
+    if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+        xmove = xmove + 0.1f;
+    }
+
+    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+        ymove = ymove + 0.1f;
+    }
+
+    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+        ymove = ymove - 0.1f;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
