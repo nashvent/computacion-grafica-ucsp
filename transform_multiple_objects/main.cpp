@@ -10,7 +10,61 @@
 #include <SOIL/SOIL.h>
 #include <SFML/Window.hpp>
 #include <chrono>
+
 using namespace std;
+
+
+class GLObject {
+    public:
+        unsigned int VBO, EBO;
+        float *points;
+        unsigned int *indices;
+        void generateBuffers(){
+            glGenBuffers(1, &VBO);
+            glGenBuffers(1, &EBO);
+        }
+
+        void bindBuffers(){
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+            glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+            glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+        }
+
+        void reBindPoints(){
+            glBindBuffer(GL_ARRAY_BUFFER, VBO);
+            glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
+        }
+
+        void deleteBuffers(){
+            glDeleteBuffers(1, &VBO);
+            glDeleteBuffers(1, &EBO);
+        }
+};
+
+class Star: public GLObject {
+  public:
+    Star(){
+        float starPoints[] = {
+            0.0f, 0.5f, 0.0f, 
+            0.5f, 0.2f, 0.0f,
+            0.35f, -0.5f, 0.0f,
+            0.0f, -0.2f, 0.0f,
+            -0.35f, -0.5f, 0.0f,
+            -0.5f, 0.2f, 0.0f, 
+        };
+        points = starPoints;
+        unsigned int indexes[] = {
+            0, 2, 3,
+            0, 4, 3,   
+            5, 3, 1,
+        };
+        indices = indexes;
+    }    
+};
+
+
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -19,28 +73,14 @@ void processInput(GLFWwindow *window);
 const unsigned int SCR_WIDTH = 1050;
 const unsigned int SCR_HEIGHT = 720;
 
-// const GLchar* vertexShaderSource = R"glsl(
-//     #version 150 core
-//     in vec2 position;
-//     in vec3 color;
-//     in vec2 texcoord;
-//     out vec3 Color;
-//     out vec2 Texcoord;
-//     uniform mat4 trans;
-//     void main()
-//     {
-//         Color = color;
-//         Texcoord = texcoord;
-//         gl_Position = trans * vec4(position, 0.0, 1.0);
-//     }
-// )glsl";
-
-const char *vertexShaderSource = "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
+const char *vertexShaderSource = R"glsl(
+    #version 330 core
+    layout (location = 0) in vec3 aPos;
+    void main()
+    {
+       gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    }
+    )glsl";
 
 const GLchar *fragmentShaderSource = R"glsl(
     #version 330 core
@@ -53,21 +93,23 @@ const GLchar *fragmentShaderSource = R"glsl(
 
 // set up vertex data (and buffer(s)) and configure vertex attributes
 // ------------------------------------------------------------------
-float starPoints[] = {
-    0.0f, 0.5f, 0.0f, 
-    0.5f, 0.2f, 0.0f,
-    0.35f, -0.5f, 0.0f,
-    0.0f, -0.2f, 0.0f,
-    -0.35f, -0.5f, 0.0f,
-    -0.5f, 0.2f, 0.0f, 
-};
+// float starPoints[] = {
+//     0.0f, 0.5f, 0.0f, 
+//     0.5f, 0.2f, 0.0f,
+//     0.35f, -0.5f, 0.0f,
+//     0.0f, -0.2f, 0.0f,
+//     -0.35f, -0.5f, 0.0f,
+//     -0.5f, 0.2f, 0.0f, 
+// };
 
 
-unsigned int indices[] = {  // note that we start from 0!
-    0, 2, 3,
-    0, 4, 3,   
-    5, 3, 1,
-};
+// unsigned int indices[] = {  // note that we start from 0!
+//     0, 2, 3,
+//     0, 4, 3,   
+//     5, 3, 1,
+// };
+
+Star *star = new Star();
 
 int main(){
     // Initialize glfw
@@ -91,10 +133,6 @@ int main(){
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
-
-    auto t_start = std::chrono::high_resolution_clock::now();
-
 
 
     // build and compile our shader program
@@ -140,18 +178,21 @@ int main(){
     
     unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    
+    //////////////////////////////////////// 
+    star->generateBuffers();
+    ////////////////////////////
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(VAO);
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(starPoints), starPoints, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(starPoints), starPoints, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    // glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    // glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    star->bindBuffers();
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
     glEnableVertexAttribArray(0);
 
@@ -170,6 +211,8 @@ int main(){
     glUseProgram(shaderProgram);    
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
+
+    auto t_start = std::chrono::high_resolution_clock::now();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -193,8 +236,7 @@ int main(){
         //     glm::vec3(0.0f, 0.0f, 1.0f)
         // );
         // glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
-        glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, sizeof(starPoints), starPoints, GL_STATIC_DRAW);
+        star->reBindPoints();
 
         glBindVertexArray(VAO); 
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
