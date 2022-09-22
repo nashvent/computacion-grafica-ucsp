@@ -15,7 +15,7 @@ add_subdirectory(/home/nash/glfw /home/nash/glfw/src)
 
 FIND_PACKAGE(OpenGL REQUIRED)
 
-SET(SOURCE_FILES main.cpp)
+SET(SOURCE_FILES main.cpp objects.h)
 
 ADD_EXECUTABLE(${ProjectId}.o ${SOURCE_FILES})
 TARGET_LINK_LIBRARIES(${ProjectId}.o glfw glad)
