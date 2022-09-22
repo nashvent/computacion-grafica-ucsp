@@ -1,6 +1,13 @@
 # Computación grafica - Laboratorio
 ## Dependencias
 - Para instalar las dependencias seguir la siguiente [guia](https://stackoverflow.com/a/62905904).
+- Despues seguir [guia](https://github.com/Dav1dde/glad/issues/186#issuecomment-436713397)
+- Despues instalar los siguientes paquetes
+```
+sudo apt-get install libglm-dev
+sudo apt-get install libsoil-dev
+sudo apt-get install libsfml-dev
+```
 ## Instrucciones para ejecutar
 1. Crear una carpeta con los siguientes archivos `main.cpp`y `CMakeLists.txt`.
 2. Dentro de la carpeta ejecutar los siguientes comandos.
