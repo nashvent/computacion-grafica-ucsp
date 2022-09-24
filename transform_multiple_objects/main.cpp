@@ -54,6 +54,8 @@ const GLchar *fragmentShaderSource = R"glsl(
 
 Vector *vect1 = new Vector(-0.9,0.5);
 Star *star = new Star();
+House *house = new House();
+
 // House *house = new House();
 GLfloat x, y, z, angle;
 int step = 1000;
@@ -129,13 +131,14 @@ int main(){
     glGenVertexArrays(1, &VAO);
 
     star->generateBuffers();
-    // house->generateBuffers();
+    house->generateBuffers();
 
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(VAO);
 
   
     star->bindBuffers();
+    house->bindBuffers();
     //house->bindBuffers();
     GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
     glEnableVertexAttribArray(0);
@@ -185,6 +188,7 @@ int main(){
         
         // Refresh points binding
         star->reBindPoints();
+        house->reBindPoints();
 
         glBindVertexArray(VAO); 
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
@@ -201,6 +205,7 @@ int main(){
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
     star->deleteBuffers();
+    house->deleteBuffers();
     glDeleteProgram(shaderProgram);
 
 

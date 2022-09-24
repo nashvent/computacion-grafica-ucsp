@@ -4,10 +4,12 @@
 #include "vector.cpp"
 using namespace std;
 
-class GLObject {
-    public:
-      // For draw
-      unsigned int VBO, EBO;
+
+
+
+class Star {
+  public:
+    unsigned int VBO, EBO;
       float *points;
       unsigned int *indices;
       int pointsSizeOf;
@@ -40,18 +42,6 @@ class GLObject {
       void setInitialPosition(Vector *vect){
         vect->addition(points, pointsLength);
       }
-
-
-};
-
-
-class Star: public GLObject {
-  public:
-    // float *points;
-    // unsigned int *indices;
-    // int pointsSizeOf;
-    // int indicesSizeOf;
-    // int pointsLength;
     Star(){
         float startPoints[] = {
             0.0f, 0.2f, 0.0f, // A 
@@ -63,25 +53,53 @@ class Star: public GLObject {
         };
         pointsSizeOf = sizeof(startPoints);
         pointsLength = pointsSizeOf / sizeof(float);
-        points = startPoints;
+        points = &startPoints[0];
         unsigned int indexes[] = {
             0, 2, 3,
             0, 4, 3,   
             5, 3, 1,
         };
-        indices = indexes;
+        indices = &indexes[0];
         indicesSizeOf = sizeof(indexes);
     }    
 };
 
 
-class House: public GLObject {
+class House {
   public:
-    // float *points;
-    // unsigned int *indices;
-    // int pointsSizeOf;
-    // int indicesSizeOf;
-    // int pointsLength;
+     unsigned int VB1, EB1;
+      float *points;
+      unsigned int *indices;
+      int pointsSizeOf;
+      int indicesSizeOf;
+      int pointsLength;
+
+      void generateBuffers(){
+          glGenBuffers(1, &VB1);
+          glGenBuffers(1, &EB1);
+      }
+
+      void bindBuffers(){
+          glBindBuffer(GL_ARRAY_BUFFER, VB1);
+          glBufferData(GL_ARRAY_BUFFER, pointsSizeOf, points, GL_STATIC_DRAW);
+          glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB1);
+          glBufferData(GL_ELEMENT_ARRAY_BUFFER, indicesSizeOf, indices, GL_STATIC_DRAW);
+          glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+      }
+
+      void reBindPoints(){
+          glBindBuffer(GL_ARRAY_BUFFER, VB1);
+          glBufferData(GL_ARRAY_BUFFER, pointsSizeOf, points, GL_STATIC_DRAW);
+      }
+
+      void deleteBuffers(){
+          glDeleteBuffers(1, &VB1);
+          glDeleteBuffers(1, &EB1);
+      }
+
+      void setInitialPosition(Vector *vect){
+        vect->addition(points, pointsLength);
+      }
     House(){
         float startPoints[] = {
             0.0f, 0.2f, 0.0f, // L 
