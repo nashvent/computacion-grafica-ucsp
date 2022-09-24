@@ -128,17 +128,36 @@ int main(){
 
     
     unsigned int VAO;
+     unsigned int VBO, EBO;
+    
+     unsigned int VB1, EB1;
+    
     glGenVertexArrays(1, &VAO);
 
-    star->generateBuffers();
-    house->generateBuffers();
+    glGenBuffers(1, &VBO);
+          glGenBuffers(1, &EBO);
+          glGenBuffers(1, &VB1);
+          glGenBuffers(1, &EB1);
+    // star->generateBuffers();
+    // house->generateBuffers();
 
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(VAO);
 
-  
-    star->bindBuffers();
-    house->bindBuffers();
+
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, star->pointsSizeOf, star->points, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, star->indicesSizeOf, star->indices, GL_STATIC_DRAW);
+    
+    glBindBuffer(GL_ARRAY_BUFFER, VB1);
+    glBufferData(GL_ARRAY_BUFFER, house->pointsSizeOf, house->points, GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EB1);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, house->indicesSizeOf, house->indices, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+
+    // star->bindBuffers();
+    // house->bindBuffers();
     //house->bindBuffers();
     GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
     glEnableVertexAttribArray(0);
@@ -187,11 +206,16 @@ int main(){
         }
         
         // Refresh points binding
-        star->reBindPoints();
-        house->reBindPoints();
+        // star->reBindPoints();
+        // house->reBindPoints();
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, star->pointsSizeOf, star->points, GL_STATIC_DRAW);
+
+        glBindBuffer(GL_ARRAY_BUFFER, VB1);
+        glBufferData(GL_ARRAY_BUFFER, house->pointsSizeOf, house->points, GL_STATIC_DRAW);
 
         glBindVertexArray(VAO); 
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
 
         // glDrawArrays(GL_TRIANGLES, starPoints[0], 3);
 
@@ -204,8 +228,12 @@ int main(){
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
-    star->deleteBuffers();
-    house->deleteBuffers();
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
+    glDeleteBuffers(1, &VB1);
+    glDeleteBuffers(1, &EB1);
+    // star->deleteBuffers();
+    // house->deleteBuffers();
     glDeleteProgram(shaderProgram);
 
 
