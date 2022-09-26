@@ -10,7 +10,7 @@ set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 
-add_subdirectory(/home/nash/glfw /home/nash/glfw/src)
+add_subdirectory($ENV{HOME}/glfw $ENV{HOME}/glfw/src)
 
 
 FIND_PACKAGE(OpenGL REQUIRED)

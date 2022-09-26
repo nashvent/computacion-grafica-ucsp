@@ -179,7 +179,7 @@ int main(){
           x = (2 * 0.0005f * angle) * sin(angle);
           y = (2 * 0.0005f * angle) * cos(angle);
           vect1->update(x,y);
-          vect1->substraction(star->points, star->pointsLength); 
+          vect1->substraction(&(star->points)[0], star->pointsLength); 
           step -=1;
         }
         
