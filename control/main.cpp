@@ -10,65 +10,73 @@
 #include <SOIL/SOIL.h>
 #include <SFML/Window.hpp>
 #include <chrono>
-#include "figures.cpp"
-
-using namespace std;
-
+#include <vector>
+#include "matrix.cpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
-
-
 // settings
-const unsigned int SCR_WIDTH = 1050;
-const unsigned int SCR_HEIGHT = 720;
+const unsigned int SCR_WIDTH = 1000;
+const unsigned int SCR_HEIGHT = 800;
 
-const GLchar *vertexShaderSource = R"glsl(
-    #version 330 core
-    layout (location = 0) in vec3 aPos;
-    in vec2 position;
-    in vec3 color;
-    in vec2 texcoord;
-    out vec3 Color;
-    out vec2 Texcoord;
-    uniform mat4 trans;
-    void main()
-    {
-      Color = color;
-        Texcoord = texcoord;
-      gl_Position =  trans * vec4(position, 0.0, 1.0);
-    }
-    )glsl";
+const char *vertexShaderSource = "#version 330 core\n"
+    "layout (location = 0) in vec3 aPos;\n"
+    "void main()\n"
+    "{\n"
+    "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "}\0";
 
-const GLchar *fragmentShaderSource = R"glsl(
-    #version 330 core
-    out vec4 FragColor;
-    void main()
-    {
-       FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
-    }
-    )glsl";
+const char *fragmentShaderSource = "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "}\n\0";
+
+// set up vertex data (and buffer(s)) and configure vertex attributes
+// ------------------------------------------------------------------
+std::vector<float> vertices = {
+    0.5f,  -0.5f, 0.0f,
+    0.0f, 0.5f, 0.0f,
+    -0.5f, -0.5f, 0.0f,
+};
+
+std::vector<unsigned int> indices = { 
+    0, 1, 2,
+};
 
 
+MatrixTransform Rx = MatrixTransform(45, 'x', 'r');
+MatrixTransform Ry = MatrixTransform(15, 'y', 'r');
+MatrixTransform Rz = MatrixTransform(53, 'z', 'r');
 
-Vector *vect1 = new Vector(-0.9,0.5);
-Star *star = new Star();
-House *house = new House();
-GLfloat x, y, z, angle;
-int step = 1000;
-int main(){
-    star->setInitialPosition(vect1);
+std::vector<float>tVector = {0.15, 0.25, 0.05};
+MatrixTransform T = MatrixTransform(tVector, 't');
 
-    // Initialize glfw
+std::vector<float>sVector = {1.25, 1.25, 1};
+MatrixTransform S = MatrixTransform(tVector, 's');
+
+int main()
+{
+    auto t_start = std::chrono::high_resolution_clock::now();
+
+    // glfw: initialize and configure
+    // ------------------------------
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    // Create windows
+#ifdef __APPLE__
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+    // glfw window creation
+    // --------------------
     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL){
+    if (window == NULL)
+    {
         std::cout << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
         return -1;
@@ -77,13 +85,14 @@ int main(){
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // glad: load all OpenGL function pointers
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)){
+    // ---------------------------------------
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
-    // auto t_start = std::chrono::high_resolution_clock::now();
-    
+
     // build and compile our shader program
     // ------------------------------------
     // vertex shader
@@ -124,19 +133,20 @@ int main(){
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
 
-    
-    unsigned int VAO;
+    unsigned int VBO, VAO, EBO;
     glGenVertexArrays(1, &VAO);
-
-    star->generateBuffers();
-    // house->generateBuffers();
-
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
     glBindVertexArray(VAO);
 
-  
-    star->bindBuffers();
-    //house->bindBuffers();
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(indices[0]), indices.data(), GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     GLint texAttrib = glGetAttribLocation(shaderProgram, "texcoord");
     glEnableVertexAttribArray(0);
 
@@ -149,13 +159,19 @@ int main(){
     // You can unbind the VAO afterwards so other VAO calls won't accidentally modify this VAO, but this rarely happens. Modifying other
     // VAOs requires a call to glBindVertexArray anyways so we generally don't unbind VAOs (nor VBOs) when it's not directly necessary.
 
-    GLint uniTrans = glGetUniformLocation(shaderProgram, "trans");
+    // GLint uniTrans = glGetUniformLocation(shaderProgram, "trans");
 
-    
+    // uncomment this call to draw in wireframe polygons.
+    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    // draw our first triangle
     glUseProgram(shaderProgram);    
     glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
 
 
+
+    // render loop
+    // -----------
     while (!glfwWindowShouldClose(window))
     {
         // input
@@ -166,31 +182,13 @@ int main(){
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-        glUseProgram(shaderProgram);
-
-        // auto t_now = std::chrono::high_resolution_clock::now();
-        // float time = std::chrono::duration_cast<std::chrono::duration<float>>(t_now - t_start).count();
-
-        glm::mat4 trans = glm::mat4(1.0f);
-        glUniformMatrix4fv(uniTrans, 1, GL_FALSE, glm::value_ptr(trans));
         
-        if(step>0){
-          angle = step * -0.1f;
-          x = (2 * 0.0005f * angle) * sin(angle);
-          y = (2 * 0.0005f * angle) * cos(angle);
-          vect1->update(x,y);
-          vect1->substraction(star->points, star->pointsLength); 
-          step -=1;
-        }
-        
-        // Refresh points binding
-        star->reBindPoints();
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(vertices[0]), vertices.data(), GL_STATIC_DRAW);
 
-        glBindVertexArray(VAO); 
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
 
-        // glDrawArrays(GL_TRIANGLES, starPoints[0], 3);
-
+        // glBindVertexArray(0); // no need to unbind it every time  
         // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
         // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
@@ -200,60 +198,51 @@ int main(){
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteVertexArrays(1, &VAO);
-    star->deleteBuffers();
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
     glDeleteProgram(shaderProgram);
-
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
     glfwTerminate();
     return 0;
-
 }
-
-// void updateObjectPosition(float* points, int size, float xmove, float ymove){
-//     for (int i = 0; i < size; i+=3) {
-//         points[i] += xmove;
-//         points[i+1] += ymove;
-//         cout<<"x:"<<points[i] << " y:"<<points[i+1]<<" "; 
-//     }
-//     cout<<endl;
-// }
-
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
-    
-    Vector *vect = new Vector();
-
+    MatrixTransform *curr_matrix = nullptr;
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
     if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
-        // xmove = -0.01f;
-        vect->update(-0.01);
+        curr_matrix = new MatrixTransform(-0.1, 'x', 't');
+        // xmove = -0.1f;
     }
 
     if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-        // xmove = 0.01f;
-        vect->update(0.01f);
+        curr_matrix = new MatrixTransform(0.1, 'x', 't');
+        // xmove = 0.1f;
     }
 
     if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-        // ymove = 0.01f;
-        vect->update(0.0, 0.01);
+        curr_matrix = new MatrixTransform(0.1, 'y', 't');
+        //ymove = 0.1f;
     }
 
     if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-        // ymove = -0.01f;
-        vect->update(0.0, -0.01);
+        // ymove = -0.1f;
+        curr_matrix = new MatrixTransform(-0.1, 'y', 't');
     }
-    
-    // if(vect->x != 0.0 || vect->y != 0.0){
-    //   vect->addition(star->points, star->pointsLength);
-    // }
+
+    if(curr_matrix != nullptr){
+      // curr_matrix->print();
+      
+      vertices = curr_matrix->multiply(vertices);
+      // curr_matrix->printVector(vertices2);
+      // std::cout<<std::endl;
+    }
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
