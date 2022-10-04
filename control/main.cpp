@@ -57,6 +57,13 @@ MatrixTransform T = MatrixTransform(tVector, 't');
 std::vector<float>sVector = {1.25, 1.25, 1};
 MatrixTransform S = MatrixTransform(tVector, 's');
 
+std::vector<MatrixTransform> transformations_theoric = {Rx,T,S,Rx};
+int step_transformation_theoric = 0;
+
+
+std::vector<MatrixTransform> transformations_practical = {Rx,Ry,Rz,T,S,Rx};
+int step_transformation_practical = 0;
+
 int main()
 {
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -216,32 +223,22 @@ void processInput(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 
-    if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
-        curr_matrix = new MatrixTransform(-0.1, 'x', 't');
-        // xmove = -0.1f;
+    // THEORIC EXAMN | KEY DOWN
+    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && step_transformation_theoric < transformations_theoric.size()){
+        std::cout<<"step_transformation_theoric "<<step_transformation_theoric<<std::endl;
+        curr_matrix = &transformations_theoric[step_transformation_theoric];
+        step_transformation_theoric+=1;
     }
 
-    if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
-        curr_matrix = new MatrixTransform(0.1, 'x', 't');
-        // xmove = 0.1f;
+    // PRACTICAL EXAMN | KEY LEFT
+    if(glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS && step_transformation_practical < transformations_practical.size()){
+        std::cout<<"step_transformation_practical "<<step_transformation_practical<<std::endl;
+        curr_matrix = &transformations_practical[step_transformation_practical];
+        step_transformation_practical+=1;
     }
 
-    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
-        curr_matrix = new MatrixTransform(0.1, 'y', 't');
-        //ymove = 0.1f;
-    }
-
-    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
-        // ymove = -0.1f;
-        curr_matrix = new MatrixTransform(-0.1, 'y', 't');
-    }
-
-    if(curr_matrix != nullptr){
-      // curr_matrix->print();
-      
+    if(curr_matrix != nullptr){  
       vertices = curr_matrix->multiply(vertices);
-      // curr_matrix->printVector(vertices2);
-      // std::cout<<std::endl;
     }
 }
 

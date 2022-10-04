@@ -137,22 +137,6 @@ class MatrixTransform{
         new_vertices.insert(new_vertices.end(), new_row.begin(), new_row.end());  
       }
       return new_vertices;
-      
-      // std::vector<float> vertices_cp(vertices);
-      // vertices_cp.push_back(1);
-      // int rows = matrix.size()/4;
-      // std::vector<float> new_vertices;
-      // for(int curr_row=0; curr_row<rows; curr_row++){
-      //   std::vector<float> row_vertices;
-      //   float calc_value = 0.0;
-      //   for(int curr_col=0; curr_col<COLS; curr_col++){
-      //       calc_value = calc_value + ( matrix[(curr_row * COLS) + curr_col ] * vertices_cp[curr_col]);
-      //   }
-      //   new_vertices.pop_back();
-        
-      //   new_vertices.push_back(calc_value);
-      // }
-      // return new_vertices;
     }
 
     std::vector<float> matrixMultiplyVector(std::vector<float> vertices_row){
