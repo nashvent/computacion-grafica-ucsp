@@ -3,7 +3,7 @@ get_filename_component(ProjectId ${CMAKE_CURRENT_SOURCE_DIR} NAME)
 string(REPLACE " " "_" ProjectId ${ProjectId})
 PROJECT(${ProjectId}.o)
 
-SET(CMAKE_CXX_STANDARD 14)
+SET(CMAKE_CXX_STANDARD 17)
 SET(CMAKE_BUILD_TYPE DEBUG)
 
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
@@ -18,5 +18,6 @@ FIND_PACKAGE(OpenGL REQUIRED)
 SET(SOURCE_FILES main.cpp)
 
 ADD_EXECUTABLE(${ProjectId}.o ${SOURCE_FILES})
+TARGET_LINK_LIBRARIES(${ProjectId}.o -std=c++17)
 TARGET_LINK_LIBRARIES(${ProjectId}.o glfw glad)
 TARGET_LINK_LIBRARIES(${ProjectId}.o OpenGL::GL)
