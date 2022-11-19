@@ -49,6 +49,13 @@ void heartbeat_monitor(){
     rubikCube->move_from_center(step_heartbeat, direction_heartbeat);
 }
 
+
+void print_instructions(){
+    std::cout<<"Instructions para manejar"<<std::endl;
+    std::cout<<"Para seleccionar camada presionar los numeros de 0 a 5"<<std::endl;
+    std::cout<<"Para rotar presionar la tecla A y D"<<std::endl;
+}
+
 int main()
 {
     // glfw: initialize and configure
@@ -154,6 +161,8 @@ int main()
     // -----------------------------------------------------------------------------------------------------------
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     ourShader.setMat4("projection", projection); 
+
+    print_instructions();
 
     // render loop
     // -----------
@@ -264,17 +273,17 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 
     if(key == GLFW_KEY_A){
-      std::cout<<"KEY A press"<<std::endl;
+      std::cout<<"KEY A rotation"<<std::endl;
       rubikCube->set_rotation(camada_selected, 1.0f);
     }
     if(key == GLFW_KEY_D){
-      std::cout<<"KEY D press"<<std::endl;
+      std::cout<<"KEY D rotation"<<std::endl;
       rubikCube->set_rotation(camada_selected, -1.0f);
     }
     
     if(key == GLFW_KEY_0 || key == GLFW_KEY_1 || key == GLFW_KEY_2 || key == GLFW_KEY_3 || key == GLFW_KEY_4 || key == GLFW_KEY_5){
-      camada_selected = key - 48; 
+      camada_selected = key - 48;
+      std::cout<<"Camada seleccionada "<<camada_selected<<std::endl; 
     }
 
 }
-
