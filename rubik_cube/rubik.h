@@ -15,7 +15,7 @@
 #include <thread>
 
 #define ROTATION_THRESHOLD 90
-#define ROTATION_STEP 2
+#define ROTATION_STEP 10
 class CubeSide{
   public:
   char axis;
