@@ -1,14 +1,13 @@
 # Sphere implemented in glut
 ## Get started
-To install dependencies paste the following commands in console
+To make project from CMakeList.txt
 ```
-sudo apt-get install freeglut3 freeglut3-dev
-sudo apt-get install binutils-gold
+cmake . && make
 ```
 
 ## Execute
-To build and execute the program run
+To execute builded the program run the following command
 ```
-cd src && make && cd ..
-cd ./sphere 
+./sphere 
 ```
+To select other cube type press 1,2 or 3 number
