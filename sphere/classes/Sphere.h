@@ -63,6 +63,12 @@ public:
     // debug
     void printSelf() const;
 
+    void printVertices() {
+      for(int i=0; i<vertices.size(); i=i+3){
+        std::cout<<vertices[i]<<" "<<vertices[i+1]<<" "<<vertices[i+2]<<std::endl;
+      }
+    }
+
 protected:
 
 private:

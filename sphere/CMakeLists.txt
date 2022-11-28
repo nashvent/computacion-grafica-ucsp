@@ -14,7 +14,7 @@ add_subdirectory($ENV{HOME}/glfw $ENV{HOME}/glfw/src)
 
 FIND_PACKAGE(OpenGL REQUIRED)
 
-SET(SOURCE_FILES classes/Sphere.cpp main.cpp)
+SET(SOURCE_FILES classes/Sphere.cpp classes/Icosphere.cpp classes/Cubesphere.cpp main.cpp)
 
 ADD_EXECUTABLE(${ProjectId}.o ${SOURCE_FILES})
 TARGET_LINK_LIBRARIES(${ProjectId}.o glfw glad)
