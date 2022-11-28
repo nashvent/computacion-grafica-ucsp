@@ -34,6 +34,16 @@ std::vector<float> sum_vector(std::vector<float> vect1, std::vector<float> vect2
   return new_vect;
 }
 
+std::vector<float> sum_matrix_vector(std::vector<float> matrix, std::vector<float> vector){
+  std::vector<float> new_matrix = {};
+  for(int i=0; i<matrix.size(); i+=3){
+    new_matrix.push_back(matrix[i]+vector[i%3]);
+    new_matrix.push_back(matrix[i+1]+vector[(i+1)%3]);
+    new_matrix.push_back(matrix[i+2]+vector[(i+2)%3]);
+  }
+  return new_matrix;
+}
+
 std::vector<float> div_vector_by_num(std::vector<float> vect1, float n_div){
   std::vector<float> new_vect = {};
   for(int i=0; i<vect1.size(); i++){

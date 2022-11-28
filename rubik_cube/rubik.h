@@ -15,7 +15,7 @@
 #include <thread>
 
 #define ROTATION_THRESHOLD 90
-#define ROTATION_STEP 2
+#define ROTATION_STEP 10
 class CubeSide{
   public:
   char axis;
@@ -58,14 +58,6 @@ class CubeSide{
           cubes_center.push_back(temp_center);
         }
       }
-    }
-    
-    std::cout<<"Center"<<std::endl;
-    print_vector(n_center);
-    std::cout<<"axis "<<n_axis<<std::endl;
-    for(int i=0; i<cubes_center.size(); i++){
-      print_vector(cubes_center[i]);
-      std::cout<<std::endl;
     }
   }
 
@@ -127,6 +119,12 @@ public:
     // texture coord attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+  }
+
+  void re_draw(){
+    float_vector all_vertices = get_all_vertices();
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, all_vertices.size() * sizeof(all_vertices[0]),  all_vertices.data(), GL_STATIC_DRAW);
   }
 
   void update_draw(){
@@ -208,6 +206,14 @@ public:
       0, -1, 0
     };
     return positions;
+  }
+
+  void move_from_center(float step, float direction){
+    for(int i=0; i<all_cubes.size(); i++){
+      Cube* current_cube = all_cubes[i];
+      current_cube->update_vertices_without_texture(sum_matrix_vector(current_cube->get_vertices_without_texture(), mult_vector_by_num(current_cube->center, step * direction)));
+    }
+    re_draw();
   }
 };
 

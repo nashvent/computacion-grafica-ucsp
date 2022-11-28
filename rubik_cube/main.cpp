@@ -20,12 +20,41 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
+
 // custom vars
 float camera_step_x = 0.1;
 float camera_step_y = 0.1;
 float camera_step_z = 0.1;
 RubikCube * rubikCube = nullptr;
 int camada_selected = 0;
+
+
+// HEARTBEAT
+const float THRESHOLD_HEARTBEAT = 0.5;
+float direction_heartbeat = 0;
+float step_heartbeat = 0.01;
+float hearbeat_counter = 0.0;
+
+void heartbeat_monitor(){
+    if(hearbeat_counter<= 0.0){
+        direction_heartbeat = 1.0;
+        step_heartbeat = 0.01;
+    }
+    if(hearbeat_counter >= THRESHOLD_HEARTBEAT){
+        direction_heartbeat = -1.0;
+        step_heartbeat = 0.001;
+    }
+
+    hearbeat_counter+= (direction_heartbeat * step_heartbeat);
+    rubikCube->move_from_center(step_heartbeat, direction_heartbeat);
+}
+
+
+void print_instructions(){
+    std::cout<<"Instructions para manejar"<<std::endl;
+    std::cout<<"Para seleccionar camada presionar los numeros de 0 a 5"<<std::endl;
+    std::cout<<"Para rotar presionar la tecla A y D"<<std::endl;
+}
 
 int main()
 {
@@ -133,6 +162,8 @@ int main()
     glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     ourShader.setMat4("projection", projection); 
 
+    print_instructions();
+
     // render loop
     // -----------
     while (!glfwWindowShouldClose(window))
@@ -170,7 +201,7 @@ int main()
         float angle = 0.0f;
         model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         ourShader.setMat4("model", model);
-
+        heartbeat_monitor();
         rubikCube->update_draw();
         glDrawArrays(GL_TRIANGLES, 0, 1620);
 
@@ -242,24 +273,17 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 
 
     if(key == GLFW_KEY_A){
-      std::cout<<"KEY A press"<<std::endl;
+      std::cout<<"KEY A rotation"<<std::endl;
       rubikCube->set_rotation(camada_selected, 1.0f);
     }
     if(key == GLFW_KEY_D){
-      std::cout<<"KEY D press"<<std::endl;
+      std::cout<<"KEY D rotation"<<std::endl;
       rubikCube->set_rotation(camada_selected, -1.0f);
     }
-    /*
-    if(key == GLFW_KEY_R){
-        for(int i=0; i<rubikCube->all_cubes.size(); i++){
-            float_vector new_vertices = rubikCube->all_cubes[i]->get_vertices_without_texture();
-            rubikCube->all_cubes[i]->update_vertices_without_texture(MatrixCubeRotate::separate(new_vertices));
-        }
-    }
-    */
-   
+    
     if(key == GLFW_KEY_0 || key == GLFW_KEY_1 || key == GLFW_KEY_2 || key == GLFW_KEY_3 || key == GLFW_KEY_4 || key == GLFW_KEY_5){
-      camada_selected = key - 48; 
+      camada_selected = key - 48;
+      std::cout<<"Camada seleccionada "<<camada_selected<<std::endl; 
     }
 
-}   
+}
