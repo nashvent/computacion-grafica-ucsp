@@ -25,6 +25,7 @@ Cubesphere cubesphere(1.0f, 2);
 Icosphere icosphere(1.0f, 2);
 
 int cube_selected = 0;
+int solid = 0;
 const float* getVertices(){
   switch(cube_selected){
         case 1: return cubesphere.getVertices();
@@ -34,6 +35,14 @@ const float* getVertices(){
 }
 
 const unsigned int* getIndices(){
+  switch(cube_selected){
+    case 1: return cubesphere.getIndices();
+    case 2: return icosphere.getIndices();
+    default: return sphere.getIndices();
+  }
+}
+
+const unsigned int* getLineIndices(){
   switch(cube_selected){
     case 1: return cubesphere.getLineIndices();
     case 2: return icosphere.getLineIndices();
@@ -50,6 +59,14 @@ unsigned int getVertexSize(){
 }
 
 unsigned int getIndexSize(){
+  switch(cube_selected){
+    case 1: return cubesphere.getIndexSize();
+    case 2: return icosphere.getIndexSize();
+    default: return sphere.getIndexSize();
+  }
+}
+
+unsigned int getLineIndexSize(){
   switch(cube_selected){
     case 1: return cubesphere.getLineIndexSize();
     case 2: return icosphere.getLineIndexSize();
@@ -104,17 +121,21 @@ int main()
   // ------------------------------------
   Shader ourShader("shader_cube.vs", "shader_cube.fs");
 
-  unsigned int VBO, VAO, EBO;
+  unsigned int VBO, VAO, EBO, TBO;
   glGenVertexArrays(1, &VAO);
   glGenBuffers(1, &VBO);
   glGenBuffers(1, &EBO);
-
+  glGenBuffers(1, &TBO);
+  
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
   glBufferData(GL_ARRAY_BUFFER, getVertexSize(), getVertices(), GL_STATIC_DRAW);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, getLineIndexSize(), getLineIndices(), GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TBO);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, getIndexSize(), getIndices(), GL_STATIC_DRAW);
 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
@@ -158,11 +179,35 @@ int main()
 
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, getVertexSize(), getVertices(), GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, getVertexSize(), getVertices(), GL_STATIC_DRAW);
 
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, getIndexSize(), getIndices(), GL_STATIC_DRAW);
-    glDrawElements(GL_LINES, getIndexCount() * 2, GL_UNSIGNED_INT, 0);
+
+    GLint color_location = glGetUniformLocation(ourShader.ID, "my_color");
+    if(solid){
+      float lineColor[] = {0.2f, 0.2f, 0.2f};
+      glUniform3fv(color_location, 1, lineColor);
+
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TBO);
+      glBufferData(GL_ELEMENT_ARRAY_BUFFER, getIndexSize(), getIndices(), GL_STATIC_DRAW);
+      glDrawElements(GL_TRIANGLES, getIndexCount() * 2, GL_UNSIGNED_INT, 0);
+      
+    }
+    
+    float lineColor2[] = {0.1f, 0.1f, 0.1f};
+    glUniform3fv(color_location, 1, lineColor2);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, getLineIndexSize(), getLineIndices(), GL_STATIC_DRAW);
+    glDrawElements(GL_LINES, getLineIndexSize() * 2, GL_UNSIGNED_INT, 0);
+    
+    
+    /*
+    float lineColor[] = {0.1f, 0.3f, 0.3f, 1};
+    glColor4fv(lineColor);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE,   lineColor);
+    */
+    /*
+    */
     // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
     // -------------------------------------------------------------------------------
     glfwSwapBuffers(window);
@@ -208,5 +253,9 @@ void key_callback(GLFWwindow *window, int key, int scancode, int action, int mod
   {
     cube_selected = key - 49;
     std::cout << "cube_selected " << cube_selected<< std::endl;
+  }
+
+  if (key == GLFW_KEY_S){
+    solid= (solid+1)%2;
   }
 }
