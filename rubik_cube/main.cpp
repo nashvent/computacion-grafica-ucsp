@@ -1,5 +1,5 @@
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "lib/stb_image.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -8,10 +8,10 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 
-#include "shader_m.h"
-#include "cube.h"
-#include "rubik.h"
-#include "matrix.h"
+#include "lib/matrix.h"
+#include "lib/shader_m.h"
+#include "cube/cube.h"
+#include "cube/rubik.h"
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -64,10 +64,6 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
 
     // glfw window creation
     // --------------------
@@ -201,7 +197,7 @@ int main()
         float angle = 0.0f;
         model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         ourShader.setMat4("model", model);
-        heartbeat_monitor();
+        // heartbeat_monitor();
         rubikCube->update_draw();
         glDrawArrays(GL_TRIANGLES, 0, 1620);
 

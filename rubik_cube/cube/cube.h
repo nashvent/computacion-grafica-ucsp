@@ -1,5 +1,6 @@
 #ifndef CUBE_H
 #define CUBE_H
+#include <iostream>
 #include <string>
 #include <vector>
 #include <map>

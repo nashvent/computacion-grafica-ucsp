@@ -10,7 +10,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include "cube.h"
-#include "matrix.h"
+#include "../lib/matrix.h"
 #include <chrono>
 #include <thread>
 
@@ -90,7 +90,7 @@ public:
   {
     VBO = nVBO;
     float_vector sides_center_raw = get_initial_sides_center();
-    string_vector colors = {"g", "r", "b", "o", "w", "y"};
+    string_vector colors = {"b", "r", "g", "o", "y", "w"};
     std::vector<char> axis = {'z','x','z','x','y','y'};
     int axis_index = 0;
     for(int i=0; i < sides_center_raw.size(); i+=3){
@@ -128,9 +128,11 @@ public:
   }
 
   void update_draw(){
+    // no movement
     if(rotation_remaining == 0) {
       return;
     }
+    
     sides[side_index]->rotate_by_step(cubes_to_move, direction * ROTATION_STEP);
     rotation_remaining -= ROTATION_STEP;
     
