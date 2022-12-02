@@ -13,6 +13,7 @@
 #include "../lib/matrix.h"
 #include <chrono>
 #include <thread>
+#include <map>
 
 #define ROTATION_THRESHOLD 90
 #define ROTATION_STEP 10
@@ -78,6 +79,7 @@ class RubikCube
 {
 public:
   std::vector<CubeSide*> sides;
+  std::map<char, int> map_sides;
   std::vector<Cube*> all_cubes;
   std::vector<Cube*> cubes_to_move;
   // Locked movement vars
@@ -92,6 +94,7 @@ public:
     float_vector sides_center_raw = get_initial_sides_center();
     string_vector colors = {"b", "r", "g", "o", "y", "w"};
     std::vector<char> axis = {'z','x','z','x','y','y'};
+    std::vector<char> side_notation = {'f', 'l', 'b','r','u','d'};
     int axis_index = 0;
     for(int i=0; i < sides_center_raw.size(); i+=3){
       float_vector n_center_cube = {sides_center_raw[i], sides_center_raw[i+1], sides_center_raw[i+2]};
@@ -105,6 +108,7 @@ public:
         }
       }
       sides.push_back(cube_side);
+      map_sides[side_notation[axis_index]] = axis_index;
       axis_index++;
     }
   }
@@ -187,6 +191,21 @@ public:
     side_index = n_side_index;
     rotation_remaining = ROTATION_THRESHOLD;
     cubes_to_move = get_cubes_from_side(side_index);
+  }
+
+  void set_movement(std::string move){
+    if(rotation_remaining > 0) {
+      std::cout<<"rotation in progress"<<std::endl;
+      return;
+    }
+    side_index = map_sides[move[0]];
+    direction = 1.0;
+    if(move.size()>1){
+      direction = -1.0;
+    }
+    cubes_to_move = get_cubes_from_side(side_index);
+    rotation_remaining = ROTATION_THRESHOLD;
+    std::cout<<"side_index "<<side_index<<std::endl;
   }
 
   float_vector get_initial_sides_center(){

@@ -267,7 +267,17 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
       return;
     }
 
+    if(key == GLFW_KEY_U || key == GLFW_KEY_D || key == GLFW_KEY_R || key == GLFW_KEY_L || key == GLFW_KEY_F || key == GLFW_KEY_B){
+        std::string key_pressed = glfwGetKeyName(key, scancode); 
+        
+        if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
+            key_pressed += "i"; 
+        }
+        std::cout<<"key_pressed "<<key_pressed<<std::endl;
+        rubikCube->set_movement(key_pressed);
+    }
 
+    /*
     if(key == GLFW_KEY_A){
       std::cout<<"KEY A rotation"<<std::endl;
       rubikCube->set_rotation(camada_selected, 1.0f);
@@ -281,5 +291,5 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
       camada_selected = key - 48;
       std::cout<<"Camada seleccionada "<<camada_selected<<std::endl; 
     }
-
+    */
 }
