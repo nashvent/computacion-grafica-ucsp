@@ -94,9 +94,9 @@ int main()
     // ------------------------------------
     Shader ourShader("rubik_cube.vs", "rubik_cube.fs");
 
-    float_vector center = {0.0f, 0.0f, 0.0f};
-    string_vector colors = {"g", "r", "b", "o", "w", "y"};
-    Cube *cube = new Cube(center, colors);
+    // float_vector center = {0.0f, 0.0f, 0.0f};
+    // string_vector colors = {"g", "r", "b", "o", "w", "y"};
+    // Cube *cube = new Cube(center, colors);
 
 
     unsigned int VBO, VAO;
@@ -275,6 +275,10 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         }
         std::cout<<"key_pressed "<<key_pressed<<std::endl;
         rubikCube->set_movement(key_pressed);
+    }
+
+    if(key == GLFW_KEY_SPACE){
+        rubikCube->get_sides_status();
     }
 
     /*

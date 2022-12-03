@@ -20,13 +20,15 @@
 class CubeSide{
   public:
   char axis;
+  char notation;
   float_vector center = {0.0f, 0.0f, 0.0f};
   std::vector<float_vector> cubes_center;
   
-  CubeSide(float_vector n_center, char n_axis){
+  CubeSide(float_vector n_center, char n_notation){
     center = n_center;
-    axis = n_axis;
-    generate_cubes_center(n_center, n_axis);
+    axis = get_axis(n_notation);
+    notation = n_notation;
+    generate_cubes_center(n_center, axis);
   }
 
   void generate_cubes_center(float_vector n_center, char n_axis){
@@ -73,6 +75,20 @@ class CubeSide{
   void print_center(){
     return print_vector(center);
   }
+
+  char get_axis(char n_notation){
+    if(n_notation =='f' || n_notation =='b'){
+      return 'z';
+    }
+
+    if(n_notation =='l' || n_notation =='r'){
+      return 'x';
+    }
+
+    //if(n_notation =='u' || n_notation =='d'){
+    // }
+    return 'y';
+  }
 };
 
 class RubikCube
@@ -93,17 +109,17 @@ public:
     VBO = nVBO;
     float_vector sides_center_raw = get_initial_sides_center();
     string_vector colors = {"b", "r", "g", "o", "y", "w"};
-    std::vector<char> axis = {'z','x','z','x','y','y'};
+    // std::vector<char> axis = {'z','x','z','x','y','y'};
     std::vector<char> side_notation = {'f', 'l', 'b','r','u','d'};
     int axis_index = 0;
     for(int i=0; i < sides_center_raw.size(); i+=3){
       float_vector n_center_cube = {sides_center_raw[i], sides_center_raw[i+1], sides_center_raw[i+2]};
-      CubeSide* cube_side = new CubeSide(n_center_cube, axis[axis_index]);
+      CubeSide* cube_side = new CubeSide(n_center_cube, side_notation[axis_index]);
       
       for(int cb_index = 0; cb_index < cube_side->cubes_center.size(); cb_index++){
         Cube* c_cube = get_cube_by_center(cube_side->cubes_center[cb_index]);
         if(c_cube == nullptr){
-          c_cube = new Cube(cube_side->cubes_center[cb_index], colors);
+          c_cube = new Cube(cube_side->cubes_center[cb_index], colors, side_notation);
           all_cubes.push_back(c_cube);
         }
       }
@@ -236,6 +252,19 @@ public:
     }
     re_draw();
   }
+
+  void get_sides_status(){
+    for(int i=0; i<1; i++){
+      std::cout<<"Notation "<< sides[i]->notation<<std::endl;
+
+      std::vector<Cube*> cubes_from_side = get_cubes_from_side(side_index);
+      for(int j=0; j<cubes_from_side.size(); j++){
+        cubes_from_side[j]->print_center();
+      }
+
+    }
+  }
+  
 };
 
 #endif

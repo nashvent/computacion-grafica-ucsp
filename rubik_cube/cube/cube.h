@@ -6,16 +6,21 @@
 #include <map>
 #include "seed_data.h"
 
-class Cube
-{
+class Cube{
 public:
   float_vector vertices;
   float_vector center;
   string_vector colors;
-  Cube(float_vector n_center, string_vector n_colors){
+  std::map<char, char> side_color;
+
+  Cube(float_vector n_center, string_vector n_colors, std::vector<char> n_side_notation){
     colors = n_colors;
     center = n_center;
     vertices = create_vertices(center);
+
+    for(int i=0; i<n_colors.size(); i++){
+      //side_color[n_side_notation[i]] = n_colors[i][0];
+    }
 
   }
 
@@ -82,5 +87,6 @@ public:
   void update_center(float_vector n_center){
     center = n_center;
   }
+
 };
 #endif
