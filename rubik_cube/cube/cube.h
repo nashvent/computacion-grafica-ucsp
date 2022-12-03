@@ -17,11 +17,11 @@ public:
     colors = n_colors;
     center = n_center;
     vertices = create_vertices(center);
-
+    //                        colors  {"b", "r", "g", "o", "y", "w"};
+    std::vector<char> side_notation = {'f', 'r', 'b','l','u','d'};
     for(int i=0; i<n_colors.size(); i++){
-      //side_color[n_side_notation[i]] = n_colors[i][0];
+      side_color[side_notation[i]] = n_colors[i][0];
     }
-
   }
 
   float_vector create_vertices(float_vector n_center){
@@ -86,6 +86,42 @@ public:
 
   void update_center(float_vector n_center){
     center = n_center;
+  }
+
+  void print_color(char notation){
+    std::cout<<"color "<<side_color[notation]<<std::endl;
+  }
+
+  void update_side_color(char side_notation, float direction){
+    std::cout<<"update_side_color "<<side_notation<<std::endl;
+    std::map<char, char> temp_side_color(side_color);
+    std::vector<char> swaps_moves(8);
+    if(side_notation=='l' || side_notation=='r'){
+      if(direction > 0){
+        swaps_moves = {'u','f',  'f', 'd',  'd', 'b',  'b', 'u'};
+      } else {
+        swaps_moves = {'u','b',  'b', 'd',  'd', 'f',  'f', 'u'};
+      }
+    }
+
+    if(side_notation=='u' || side_notation=='d'){
+      if(direction > 0){
+        swaps_moves = {'f','l',  'l', 'b',  'b', 'r',  'r', 'f'};
+      } else {
+        swaps_moves = {'f','r',  'r', 'b',  'b', 'l',  'l', 'f'};
+      }
+    }
+    
+    if(side_notation=='f' || side_notation=='b'){
+      if(direction > 0){
+        swaps_moves = {'l','d',  'd', 'r',  'r', 'u',  'u', 'l'};
+      } else {
+        swaps_moves = {'l','u',  'u', 'r',  'r', 'd',  'd', 'l'};
+      }
+    }
+    for(int i=0; i < swaps_moves.size(); i=i+2){
+      side_color[swaps_moves[i]] = temp_side_color[swaps_moves[i+1]];
+    }
   }
 
 };

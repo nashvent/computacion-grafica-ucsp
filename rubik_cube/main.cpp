@@ -268,12 +268,11 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 
     if(key == GLFW_KEY_U || key == GLFW_KEY_D || key == GLFW_KEY_R || key == GLFW_KEY_L || key == GLFW_KEY_F || key == GLFW_KEY_B){
-        std::string key_pressed = glfwGetKeyName(key, scancode); 
-        
+        std::string key_pressed = glfwGetKeyName(key, scancode);   
         if(glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS){
             key_pressed += "i"; 
         }
-        std::cout<<"key_pressed "<<key_pressed<<std::endl;
+        // std::cout<<"key_pressed "<<key_pressed<<std::endl;
         rubikCube->set_movement(key_pressed);
     }
 

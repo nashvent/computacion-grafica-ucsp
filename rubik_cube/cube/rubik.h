@@ -160,6 +160,7 @@ public:
       for(int i=0; i< cubes_to_move.size(); i++){
         float_vector new_vertices = cubes_to_move[i]->center;
         cubes_to_move[i]->update_center(MatrixCubeRotate::rotate(ROTATION_THRESHOLD * direction, sides[side_index]->axis, sides[side_index]->center, new_vertices));
+        cubes_to_move[i]->update_side_color(sides[side_index]->notation, direction);
       }
     }
 
@@ -221,7 +222,7 @@ public:
     }
     cubes_to_move = get_cubes_from_side(side_index);
     rotation_remaining = ROTATION_THRESHOLD;
-    std::cout<<"side_index "<<side_index<<std::endl;
+    // std::cout<<"side_index "<<side_index<<std::endl;
   }
 
   float_vector get_initial_sides_center(){
@@ -256,10 +257,9 @@ public:
   void get_sides_status(){
     for(int i=0; i<1; i++){
       std::cout<<"Notation "<< sides[i]->notation<<std::endl;
-
-      std::vector<Cube*> cubes_from_side = get_cubes_from_side(side_index);
+      std::vector<Cube*> cubes_from_side = get_cubes_from_side(i);
       for(int j=0; j<cubes_from_side.size(); j++){
-        cubes_from_side[j]->print_center();
+        cubes_from_side[j]->print_color(sides[i]->notation);
       }
 
     }
