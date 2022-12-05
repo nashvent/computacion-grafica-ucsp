@@ -17,6 +17,9 @@
 
 #define ROTATION_THRESHOLD 90
 #define ROTATION_STEP 10
+
+#define limit 50
+
 class CubeSide{
   public:
   char axis;
@@ -255,7 +258,7 @@ public:
   }
 
   void get_sides_status(){
-    for(int i=0; i<1; i++){
+    for(int i=0; i<sides.size(); i++){
       std::cout<<"Notation "<< sides[i]->notation<<std::endl;
       std::vector<Cube*> cubes_from_side = get_cubes_from_side(i);
       for(int j=0; j<cubes_from_side.size(); j++){

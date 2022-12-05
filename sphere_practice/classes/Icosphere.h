@@ -51,6 +51,10 @@ public:
     const unsigned int* getIndices() const  { return indices.data(); }
     const unsigned int* getLineIndices() const  { return lineIndices.data(); }
 
+    std::vector<float> getVerticesVector() { return vertices; };
+    void setVertices(std::vector<float> n_vertices) { vertices = n_vertices; };
+
+
     // for interleaved vertices: V/N/T
     unsigned int getInterleavedVertexCount() const  { return getVertexCount(); }    // # of vertices
     unsigned int getInterleavedVertexSize() const   { return (unsigned int)interleavedVertices.size() * sizeof(float); }    // # of bytes
@@ -96,6 +100,7 @@ private:
                            unsigned int i4, unsigned int i5, unsigned int i6);
     unsigned int addSubVertexAttribs(const float v[3], const float n[3], const float t[2]);
 
+   
     // memeber vars
     float radius;                           // circumscribed radius
     int subdivision;

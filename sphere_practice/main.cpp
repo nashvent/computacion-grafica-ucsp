@@ -8,6 +8,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
 #include "lib/shader_m.h"
+#include "lib/matrix.h"
 #include "classes/Sphere.h"
 #include "classes/Cubesphere.h"
 #include "classes/Icosphere.h"
@@ -15,73 +16,59 @@
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods);
-
+const int limit_counter = 100;
+int counter = 0;
+const int max_bounce = 11;
+int counter_bounce;
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
-Sphere sphere(1.0f, 36, 18, false);
-Cubesphere cubesphere(1.0f, 2);
 Icosphere icosphere(1.0f, 2);
 
 int cube_selected = 0;
-int solid = 0;
+int solid = 1;
+float lineColor[] = {0.2f, 0.2f, 0.2f};
 const float* getVertices(){
-  switch(cube_selected){
-        case 1: return cubesphere.getVertices();
-        case 2: return icosphere.getVertices();
-        default: return sphere.getVertices();
-  }
+  return icosphere.getVertices();
 }
 
 const unsigned int* getIndices(){
-  switch(cube_selected){
-    case 1: return cubesphere.getIndices();
-    case 2: return icosphere.getIndices();
-    default: return sphere.getIndices();
-  }
+  return icosphere.getIndices();
 }
 
 const unsigned int* getLineIndices(){
-  switch(cube_selected){
-    case 1: return cubesphere.getLineIndices();
-    case 2: return icosphere.getLineIndices();
-    default: return sphere.getLineIndices();
-  }
+  return icosphere.getLineIndices();
 }
 
 unsigned int getVertexSize(){
-  switch(cube_selected){
-    case 1: return cubesphere.getVertexSize();
-    case 2: return icosphere.getVertexSize();
-    default: return sphere.getVertexSize();
-  }
+  return icosphere.getVertexSize();
 }
 
 unsigned int getIndexSize(){
-  switch(cube_selected){
-    case 1: return cubesphere.getIndexSize();
-    case 2: return icosphere.getIndexSize();
-    default: return sphere.getIndexSize();
-  }
+  return icosphere.getIndexSize();
 }
 
 unsigned int getLineIndexSize(){
-  switch(cube_selected){
-    case 1: return cubesphere.getLineIndexSize();
-    case 2: return icosphere.getLineIndexSize();
-    default: return sphere.getLineIndexSize();
-  }
+  return icosphere.getLineIndexSize();
 }
 
 unsigned int getIndexCount(){
-  switch(cube_selected){
-    case 1: return cubesphere.getLineIndexCount();
-    case 2: return icosphere.getLineIndexCount();
-    default: return sphere.getLineIndexCount();
-  }
+  return icosphere.getLineIndexCount();
 }
 
+float rad_plane = 0.4f;
+float plane_vertices[] = {
+  -1.0f*rad_plane,  0.0f, -1.0f*rad_plane,  
+  rad_plane, -0.0f, -1.0f*rad_plane, 
+  rad_plane, -0.0f, rad_plane,
+  -1.0f*rad_plane,  0.0f, rad_plane,
+};
+
+unsigned int plane_indices[] = {
+    0, 1, 2,
+    0, 2, 3,
+};
 
 int main()
 {
@@ -147,6 +134,14 @@ int main()
   glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
   ourShader.setMat4("projection", projection);
 
+
+  std::vector<float> origin = {0,1,-8};
+  MatrixTransform translate = MatrixTransform(origin, 't');
+  icosphere.setVertices(translate.multiply(icosphere.getVerticesVector()));
+  
+  std::vector<float> move_down = {0,-0.1f,0.01f};
+  MatrixTransform translate_down = MatrixTransform(move_down, 't');
+  
   // render loop
   // -----------
   while (!glfwWindowShouldClose(window))
@@ -165,8 +160,8 @@ int main()
     glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
     glm::mat4 view = glm::mat4(1.0f);
     glm::mat4 projection = glm::mat4(1.0f);
-    model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.5f, 1.0f, 0.0f));
-    view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+    model = glm::rotate(model, 1.0f, glm::vec3(0.5f, 1.0f, 0.0f));
+    view = glm::translate(view, glm::vec3(0.0f, 4.0f, -10.0f));
     projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
     // retrieve the matrix uniform locations
     unsigned int modelLoc = glGetUniformLocation(ourShader.ID, "model");
@@ -178,13 +173,28 @@ int main()
     ourShader.setMat4("projection", projection);
 
     glBindVertexArray(VAO);
+
+    if(max_bounce > counter_bounce){
+      
+      if(counter>limit_counter){
+        counter=0;
+        move_down[1] = move_down[1] * -0.9f; 
+        translate_down = MatrixTransform(move_down, 't');
+        counter_bounce++;
+      }
+      else{
+        counter++;
+        icosphere.setVertices(translate_down.multiply(icosphere.getVerticesVector()));
+      }
+    }
+    
+
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, getVertexSize(), getVertices(), GL_STATIC_DRAW);
 
 
     GLint color_location = glGetUniformLocation(ourShader.ID, "my_color");
     if(solid){
-      float lineColor[] = {0.2f, 0.2f, 0.2f};
       glUniform3fv(color_location, 1, lineColor);
 
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, TBO);
@@ -192,7 +202,7 @@ int main()
       glDrawElements(GL_TRIANGLES, getIndexCount() * 2, GL_UNSIGNED_INT, 0);
       
     }
-    
+     
     float lineColor2[] = {0.1f, 0.1f, 0.1f};
     glUniform3fv(color_location, 1, lineColor2);
 
