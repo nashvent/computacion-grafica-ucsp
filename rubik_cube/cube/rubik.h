@@ -29,8 +29,10 @@ class CubeSide{
   
   CubeSide(float_vector n_center, char n_notation){
     center = n_center;
-    axis = get_axis(n_notation);
     notation = n_notation;
+    axis = get_axis(n_notation);
+    std::cout<<"notation "<<n_notation<<std::endl;
+    std::cout<<"axis "<<axis<<std::endl;
     generate_cubes_center(n_center, axis);
   }
 
@@ -42,25 +44,26 @@ class CubeSide{
     switch(n_axis){
         case 'x':
           x_axis = {n_center[0]};
-          y_axis = {n_center[1] - 1, n_center[1], n_center[1] + 1};
-          z_axis = {n_center[2] - 1, n_center[2], n_center[2] + 1};
+          y_axis = {n_center[1] + 1, n_center[1], n_center[1] - 1};
+          z_axis = {n_center[2] + 1, n_center[2], n_center[2] - 1};
           break;
         case 'y':
-          x_axis = {n_center[0] - 1, n_center[0], n_center[0] + 1};
+          x_axis = {n_center[0] + 1, n_center[0], n_center[0] - 1};
           y_axis = {n_center[1]};
-          z_axis = {n_center[2] - 1, n_center[2], n_center[2] + 1}; 
+          z_axis = {n_center[2] + 1, n_center[2], n_center[2] - 1}; 
           break;
         case 'z': 
-          x_axis = {n_center[0] - 1, n_center[0], n_center[0] + 1};
-          y_axis = {n_center[1] - 1, n_center[1], n_center[1] + 1};
+          x_axis = {n_center[0] + 1, n_center[0], n_center[0] - 1};
+          y_axis = {n_center[1] + 1, n_center[1], n_center[1] - 1};
           z_axis = {n_center[2]};
           break;
     }
-
     for(int i_x=0; i_x < x_axis.size(); i_x++){
       for(int i_y=0; i_y < y_axis.size(); i_y++){
         for(int i_z=0; i_z < z_axis.size(); i_z++){
           float_vector temp_center = {x_axis[i_x], y_axis[i_y], z_axis[i_z]};
+          print_vector(temp_center);
+          std::cout<<std::endl;
           cubes_center.push_back(temp_center);
         }
       }
@@ -264,7 +267,6 @@ public:
       for(int j=0; j<cubes_from_side.size(); j++){
         cubes_from_side[j]->print_color(sides[i]->notation);
       }
-
     }
   }
   

@@ -93,7 +93,7 @@ public:
   }
 
   void update_side_color(char side_notation, float direction){
-    std::cout<<"update_side_color "<<side_notation<<std::endl;
+    // std::cout<<"update_side_color "<<side_notation<<std::endl;
     std::map<char, char> temp_side_color(side_color);
     std::vector<char> swaps_moves(8);
     if(side_notation=='l' || side_notation=='r'){
