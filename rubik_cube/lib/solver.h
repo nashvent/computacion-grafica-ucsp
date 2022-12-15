@@ -31,14 +31,25 @@ std::string exec(std::string command)
 // order "frudlb"
 std::vector<std::string> get_solution_fridrich(std::string state)
 {
-  // ffbfffrbbdrlrrrddbudbuuuuulddrbdlldurllulldlfurfbbbrff
   std::string command = "node solver/fridrich.js " + state;
-  std::cout << "command " << command << std::endl;
+  // std::cout << "command " << command << std::endl;
   std::string output = exec(command);
   if(output.empty()){
     return {};
   }
   return parse_solution_fridrich(output);
+}
+
+// order urfdlb
+std::vector<std::string> get_solution_kociemba(std::string state){
+  std::string command = "node solver/kociemba.js " + state;
+  std::cout << "command " << command << std::endl;
+  std::string output = exec(command);
+  std::cout<<"output "<<output<<std::endl;
+  if(output.empty()){
+    return {};
+  }
+  return parse_solution_kociemba(output);
 }
 
 #endif

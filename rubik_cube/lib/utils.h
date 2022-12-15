@@ -103,4 +103,28 @@ std::vector<std::string> parse_solution_fridrich(std::string solution)
   return parsed_sol;
 }
 
+std::vector<std::string> parse_solution_kociemba(std::string solution)
+{
+  size_t pos = 0;
+  std::vector<std::string> parsed_sol;
+  std::vector<std::string> splited_solution = split_string(solution);
+
+  for(int i=0; i<splited_solution.size(); i++){
+    std::string token = splited_solution[i];
+    std::string parsed_token;
+    parsed_token = "";
+    parsed_token += tolower(token[0]);
+    if (token[1] == '\'')
+    {
+      parsed_token += "i";
+    }
+    else if (token[1] == '2')
+    {
+      parsed_sol.push_back(parsed_token);
+    }
+    parsed_sol.push_back(parsed_token);
+  }
+  return parsed_sol;
+}
+
 #endif
