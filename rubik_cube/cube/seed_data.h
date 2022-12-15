@@ -9,8 +9,62 @@ typedef std::vector<int> int_vector;
 typedef std::string string;
 typedef std::map<std::string, float_vector> float_vector_map;
 
+float_vector front_source = {
+  -0.5f, -0.5f, -0.5f,
+  0.5f, -0.5f, -0.5f,
+  0.5f,  0.5f, -0.5f,
+  0.5f,  0.5f, -0.5f,
+  -0.5f,  0.5f, -0.5f,
+  -0.5f, -0.5f, -0.5f,
+};
+
+float_vector left_source = {
+  0.5f,  0.5f,  0.5f,
+  0.5f,  0.5f, -0.5f,
+  0.5f, -0.5f, -0.5f,
+  0.5f, -0.5f, -0.5f,
+  0.5f, -0.5f,  0.5f,
+  0.5f,  0.5f,  0.5f,
+};
+
+float_vector back_source = {
+  -0.5f, -0.5f,  0.5f,
+  0.5f, -0.5f,  0.5f,
+  0.5f,  0.5f,  0.5f,
+  0.5f,  0.5f,  0.5f,
+  -0.5f,  0.5f,  0.5f,
+  -0.5f, -0.5f,  0.5f,
+};
+
+float_vector rigth_source = {
+  -0.5f,  0.5f,  0.5f,
+  -0.5f,  0.5f, -0.5f,
+  -0.5f, -0.5f, -0.5f,
+  -0.5f, -0.5f, -0.5f,
+  -0.5f, -0.5f,  0.5f,
+  -0.5f,  0.5f,  0.5f,
+};
+
+float_vector up_source = {
+  -0.5f,  0.5f, -0.5f,
+  0.5f,  0.5f, -0.5f,
+  0.5f,  0.5f,  0.5f,
+  0.5f,  0.5f,  0.5f,
+  -0.5f,  0.5f,  0.5f,
+  -0.5f,  0.5f, -0.5f, 
+};
+
+float_vector down_source = {
+  -0.5f, -0.5f, -0.5f,
+  0.5f, -0.5f, -0.5f,
+  0.5f, -0.5f,  0.5f,
+  0.5f, -0.5f,  0.5f,
+  -0.5f, -0.5f,  0.5f,
+  -0.5f, -0.5f, -0.5f,
+};
+
 float_vector source_cube_vertices =  {
-  // 1
+  // 1 f
   -0.5f, -0.5f, -0.5f,
   0.5f, -0.5f, -0.5f,
   0.5f,  0.5f, -0.5f,
@@ -18,7 +72,24 @@ float_vector source_cube_vertices =  {
   -0.5f,  0.5f, -0.5f,
   -0.5f, -0.5f, -0.5f,
 
-  // 2
+    // 4 l
+  0.5f,  0.5f,  0.5f,
+  0.5f,  0.5f, -0.5f,
+  0.5f, -0.5f, -0.5f,
+  0.5f, -0.5f, -0.5f,
+  0.5f, -0.5f,  0.5f,
+  0.5f,  0.5f,  0.5f,
+
+  
+  // 3 b
+  -0.5f, -0.5f,  0.5f,
+  0.5f, -0.5f,  0.5f,
+  0.5f,  0.5f,  0.5f,
+  0.5f,  0.5f,  0.5f,
+  -0.5f,  0.5f,  0.5f,
+  -0.5f, -0.5f,  0.5f,
+
+// 2 r
   -0.5f,  0.5f,  0.5f,
   -0.5f,  0.5f, -0.5f,
   -0.5f, -0.5f, -0.5f,
@@ -26,21 +97,6 @@ float_vector source_cube_vertices =  {
   -0.5f, -0.5f,  0.5f,
   -0.5f,  0.5f,  0.5f,
 
-  // 3
-  -0.5f, -0.5f,  0.5f,
-  0.5f, -0.5f,  0.5f,
-  0.5f,  0.5f,  0.5f,
-  0.5f,  0.5f,  0.5f,
-  -0.5f,  0.5f,  0.5f,
-  -0.5f, -0.5f,  0.5f,
-
-  // 4
-  0.5f,  0.5f,  0.5f,
-  0.5f,  0.5f, -0.5f,
-  0.5f, -0.5f, -0.5f,
-  0.5f, -0.5f, -0.5f,
-  0.5f, -0.5f,  0.5f,
-  0.5f,  0.5f,  0.5f,
 
   // up
   -0.5f,  0.5f, -0.5f,

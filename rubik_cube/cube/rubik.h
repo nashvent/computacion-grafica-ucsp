@@ -41,32 +41,59 @@ class CubeSide{
     float_vector y_axis;
     float_vector z_axis;
 
+    print_vector(n_center);
+    std::cout<<std::endl;
     switch(n_axis){
-        case 'x':
-          x_axis = {n_center[0]};
+        case 'x': // l r
           y_axis = {n_center[1] + 1, n_center[1], n_center[1] - 1};
-          z_axis = {n_center[2] + 1, n_center[2], n_center[2] - 1};
+          if(notation == 'l') {
+            z_axis = {n_center[2] + 1, n_center[2], n_center[2] - 1};          
+          }
+          else{
+            z_axis = {n_center[2] - 1, n_center[2], n_center[2] + 1};
+          }    
+          for(int i_y=0; i_y < y_axis.size(); i_y++){
+            for(int i_z=0; i_z < z_axis.size(); i_z++){
+              float_vector temp_center = {n_center[0], y_axis[i_y], z_axis[i_z]};
+              cubes_center.push_back(temp_center);
+            }
+          }
+          
           break;
-        case 'y':
+        case 'y': // u d
           x_axis = {n_center[0] + 1, n_center[0], n_center[0] - 1};
-          y_axis = {n_center[1]};
-          z_axis = {n_center[2] + 1, n_center[2], n_center[2] - 1}; 
+          if(notation== 'u'){
+            z_axis = {n_center[2] + 1, n_center[2], n_center[2] - 1}; 
+          } else{
+            z_axis = {n_center[2] - 1, n_center[2], n_center[2] + 1};
+          }
+
+          for(int i_z=0; i_z < z_axis.size(); i_z++){
+            for(int i_x=0; i_x < x_axis.size(); i_x++){
+              float_vector temp_center = {x_axis[i_x], n_center[1], z_axis[i_z]};
+              cubes_center.push_back(temp_center);
+            }
+          }
+        
+          
           break;
-        case 'z': 
-          x_axis = {n_center[0] + 1, n_center[0], n_center[0] - 1};
+        case 'z': // f b
           y_axis = {n_center[1] + 1, n_center[1], n_center[1] - 1};
-          z_axis = {n_center[2]};
+          if(notation=='f'){
+            x_axis = {n_center[0] + 1, n_center[0], n_center[0] - 1};
+          }
+          else{
+            x_axis = {n_center[0] - 1, n_center[0], n_center[0] + 1};
+          }
+
+          for(int i_y=0; i_y < y_axis.size(); i_y++){
+            for(int i_x=0; i_x < x_axis.size(); i_x++){
+              float_vector temp_center = {x_axis[i_x], y_axis[i_y], n_center[2]};
+              cubes_center.push_back(temp_center);
+            }
+          }
+        
           break;
-    }
-    for(int i_x=0; i_x < x_axis.size(); i_x++){
-      for(int i_y=0; i_y < y_axis.size(); i_y++){
-        for(int i_z=0; i_z < z_axis.size(); i_z++){
-          float_vector temp_center = {x_axis[i_x], y_axis[i_y], z_axis[i_z]};
-          print_vector(temp_center);
-          std::cout<<std::endl;
-          cubes_center.push_back(temp_center);
-        }
-      }
     }
   }
 
@@ -106,20 +133,26 @@ public:
   std::vector<Cube*> cubes_to_move;
   // Locked movement vars
   int rotation_remaining = 0;
+  int solution_in_progress = 0;
+  std::vector<std::string> solution;
   float direction = 1.0f;
   int side_index = 0;
-
+  std::map<char, char> side_by_color;
   unsigned int VBO;
   RubikCube(unsigned int &nVBO)
   {
     VBO = nVBO;
-    float_vector sides_center_raw = get_initial_sides_center();
-    string_vector colors = {"b", "r", "g", "o", "y", "w"};
+    //float_vector sides_center_raw = get_initial_sides_center();
+    string_vector colors = {"g", "o", "b", "r", "w", "y"};
     // std::vector<char> axis = {'z','x','z','x','y','y'};
     std::vector<char> side_notation = {'f', 'l', 'b','r','u','d'};
+    for(int i=0; i<side_notation.size(); i++){
+      side_by_color[colors[i][0]] = side_notation[i];
+    }
+
     int axis_index = 0;
-    for(int i=0; i < sides_center_raw.size(); i+=3){
-      float_vector n_center_cube = {sides_center_raw[i], sides_center_raw[i+1], sides_center_raw[i+2]};
+    for(int i=0; i < side_notation.size(); i++){
+      float_vector n_center_cube = get_center_by_notation(side_notation[i]);
       CubeSide* cube_side = new CubeSide(n_center_cube, side_notation[axis_index]);
       
       for(int cb_index = 0; cb_index < cube_side->cubes_center.size(); cb_index++){
@@ -154,10 +187,19 @@ public:
   }
 
   void update_draw(){
+    if(rotation_remaining == 0 && solution.size() > 0) {
+      std::string current_movement = solution[0];
+      std::cout<<"current_movement "<<current_movement<<std::endl;
+      solution.erase(solution.begin());
+      set_movement(current_movement);
+    }
+    
     // no movement
     if(rotation_remaining == 0) {
       return;
     }
+
+
     
     sides[side_index]->rotate_by_step(cubes_to_move, direction * ROTATION_STEP);
     rotation_remaining -= ROTATION_STEP;
@@ -196,6 +238,17 @@ public:
     return cubes_from_side;
   }
 
+  std::vector<Cube*> get_cubes_from_side(CubeSide* current_side){
+    std::vector<Cube*> cubes_from_side;
+    for(int i=0; i < current_side->cubes_center.size(); i++){
+      Cube* c_cube = get_cube_by_center(current_side->cubes_center[i]);
+      if(c_cube != nullptr){
+        cubes_from_side.push_back(c_cube);
+      }
+    }
+    return cubes_from_side;
+  }
+
   float_vector get_all_vertices(){
     float_vector all_vertices = {};
     for(int i=0; i<all_cubes.size(); i++){
@@ -222,35 +275,70 @@ public:
       return;
     }
     side_index = map_sides[move[0]];
-    direction = 1.0;
+    
+    direction = get_direction_by_move(move[0]);
+
     if(move.size()>1){
-      direction = -1.0;
+      direction = direction * -1.0;
     }
     cubes_to_move = get_cubes_from_side(side_index);
     rotation_remaining = ROTATION_THRESHOLD;
     // std::cout<<"side_index "<<side_index<<std::endl;
   }
 
-  float_vector get_initial_sides_center(){
-    float_vector positions = {
-      // Horizontal
-      // CAMADA 1 (rotate z)
-      0, 0, -1,
-      // CAMADA 2 (rotate x)
-      1, 0, 0,
-      // CAMADA 3 (rotate z)
-      0, 0, 1, 
-      // CAMADA 4 (rotate x)
-      -1, 0, 0, 
-
-      // Vertical
-      // CAMADA 5 | top (rotate y)
-      0, 1, 0,
-      // CAMADA 6 | bottom (rotate y)
-      0, -1, 0
-    };
-    return positions;
+  float_vector get_center_by_notation(char notation){
+    switch (notation)
+    {
+    case 'f':
+      return {0, 0, -1};
+    case 'l':
+      return {1, 0, 0};
+    case 'b':
+      return {0, 0, 1};
+    case 'r':
+      return {-1, 0, 0};
+    case 'u':
+      return {0, 1, 0};
+    case 'd':
+      return {0, -1, 0};
+    }
+    return {};
   }
+
+  float get_direction_by_move(char notation){
+    switch (notation){
+      case 'f':
+      case 'r':
+      case 'd':
+        return 1.0;
+      case 'b':
+      case 'l':
+      case 'u':
+        return -1.0;
+    }
+    return 1.0;
+  }
+
+  // float_vector get_initial_sides_center(std::string order="flbrud"){
+  //   float_vector positions = {
+      
+  //     // 'f' (rotate z)
+  //     0, 0, -1,
+  //     // 'l' (rotate x)
+  //     1, 0, 0,
+  //     // 'b' (rotate z)
+  //     0, 0, 1, 
+  //     // 'r' (rotate x)
+  //     -1, 0, 0, 
+
+  //     // Vertical
+  //     // 'u' | top (rotate y)
+  //     0, 1, 0,
+  //     // 'd' | bottom (rotate y)
+  //     0, -1, 0
+  //   };
+  //   return positions;
+  // }
 
   void move_from_center(float step, float direction){
     for(int i=0; i<all_cubes.size(); i++){
@@ -260,16 +348,44 @@ public:
     re_draw();
   }
 
-  void get_sides_status(){
-    for(int i=0; i<sides.size(); i++){
-      std::cout<<"Notation "<< sides[i]->notation<<std::endl;
-      std::vector<Cube*> cubes_from_side = get_cubes_from_side(i);
+  std::vector<char> get_sides_status(std::string notations_order = "bflrdu"){
+    std::vector<char> colors;
+    for(int i=0; i<notations_order.size(); i++){
+      CubeSide *current_side = get_cube_side(notations_order[i]);
+      std::cout<<"notation "<<current_side->notation<<std::endl;
+      std::vector<Cube*> cubes_from_side = get_cubes_from_side(current_side);
       for(int j=0; j<cubes_from_side.size(); j++){
-        cubes_from_side[j]->print_color(sides[i]->notation);
+        colors.push_back(cubes_from_side[j]->get_color(current_side->notation));
       }
     }
+    return colors;
   }
-  
+
+  std::vector<char> get_sides_status_notation(std::string notations_order = "bflrdu"){
+    std::vector<char> notation_status;
+    for(int i=0; i<notations_order.size(); i++){
+      CubeSide *current_side = get_cube_side(notations_order[i]);
+      std::cout<<"notation "<<current_side->notation<<std::endl;
+      std::vector<Cube*> cubes_from_side = get_cubes_from_side(current_side);
+      for(int j=0; j<cubes_from_side.size(); j++){
+        notation_status.push_back(side_by_color[cubes_from_side[j]->get_color(current_side->notation)]);
+      }
+    }
+    return notation_status;
+  }
+
+  CubeSide* get_cube_side(char notation){
+    for(int i=0; i<sides.size(); i++){
+      if(sides[i]->notation == notation){
+        return sides[i];
+      }
+    }
+    return nullptr;
+  }
+
+  void set_solution(std::vector<std::string> n_solution){
+    solution = n_solution;
+  }
 };
 
 #endif

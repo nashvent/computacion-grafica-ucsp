@@ -10,8 +10,11 @@
 
 #include "lib/matrix.h"
 #include "lib/shader_m.h"
+#include "lib/utils.h"
+#include "lib/solver.h"
 #include "cube/cube.h"
 #include "cube/rubik.h"
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
@@ -273,11 +276,21 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
             key_pressed += "i"; 
         }
         // std::cout<<"key_pressed "<<key_pressed<<std::endl;
+        std::cout<<"key_pressed "<<key_pressed<<std::endl;
         rubikCube->set_movement(key_pressed);
     }
 
     if(key == GLFW_KEY_SPACE){
-        rubikCube->get_sides_status();
+      std::string order_notation = "frudlb";
+      std::vector<char> colors_notation = rubikCube->get_sides_status_notation(order_notation);
+      std::string color_notation_str = "";
+      for(int i=0;i<colors_notation.size();i++){
+        color_notation_str += colors_notation[i];
+	    }
+      std::cout<<color_notation_str<<std::endl;
+      std::vector<std::string> solution = get_solution(color_notation_str);
+      print_vector(solution);
+      rubikCube->set_solution(solution);
     }
 
     /*

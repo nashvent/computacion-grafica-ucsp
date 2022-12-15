@@ -20,10 +20,12 @@ float n_sin(float degree_value){
 }
 
 
-void print_vector(std::vector<float> vect){
+template <typename T>
+void print_vector(std::vector<T> vect){
   for(int i=0; i<vect.size(); i++){
     std::cout<<vect[i]<<",";
   }
+  std::cout<<std::endl;
 }
 
 std::vector<float> sum_vector(std::vector<float> vect1, std::vector<float> vect2){

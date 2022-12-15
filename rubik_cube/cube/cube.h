@@ -12,13 +12,12 @@ public:
   float_vector center;
   string_vector colors;
   std::map<char, char> side_color;
-
+  std::vector<char> side_notation;
   Cube(float_vector n_center, string_vector n_colors, std::vector<char> n_side_notation){
     colors = n_colors;
     center = n_center;
+    side_notation = n_side_notation;
     vertices = create_vertices(center);
-    //                        colors  {"b", "r", "g", "o", "y", "w"};
-    std::vector<char> side_notation = {'f', 'r', 'b','l','u','d'};
     for(int i=0; i<n_colors.size(); i++){
       side_color[side_notation[i]] = n_colors[i][0];
     }
@@ -30,23 +29,46 @@ public:
     int color_index = 0;
     float_vector current_color = source_colors[colors[color_index]];
     int_vector colors_index = {0, 1, 2, 2, 3, 0};
-    for(int i=0; i<source_cube_vertices.size(); i+=3){
-      // Vertices
-      new_vertices.push_back(source_cube_vertices[i] + n_center[0]);
-      new_vertices.push_back(source_cube_vertices[i+1] + n_center[1]);
-      new_vertices.push_back(source_cube_vertices[i+2] + n_center[2]);
+    
+    for(int j=0; j<side_notation.size(); j++){
+      float_vector current_source = get_source_from_notation(side_notation[j]); 
+      for(int i=0; i<current_source.size(); i+=3){
+        // Vertices
+        new_vertices.push_back(current_source[i] + n_center[0]);
+        new_vertices.push_back(current_source[i+1] + n_center[1]);
+        new_vertices.push_back(current_source[i+2] + n_center[2]);
 
-      // Colors
-      if(color_count >= colors_index.size()){
-        color_count = 0;
-        color_index += 1;
-        current_color = source_colors[colors[color_index]];
+        // Colors
+        if(color_count >= colors_index.size()){
+          color_count = 0;
+          color_index += 1;
+          current_color = source_colors[colors[color_index]];
+        }
+        new_vertices.push_back(current_color[ colors_index[color_count] * 2 ]);
+        new_vertices.push_back(current_color[ colors_index[color_count] * 2 + 1 ]);
+        color_count += 1;
       }
-      new_vertices.push_back(current_color[ colors_index[color_count] * 2 ]);
-      new_vertices.push_back(current_color[ colors_index[color_count] * 2 + 1 ]);
-      color_count += 1;
     }
     return new_vertices;
+  }
+
+  float_vector get_source_from_notation(char n_notation){
+    switch (n_notation)
+    {
+    case 'f':
+      return front_source;
+    case 'l':
+      return left_source;
+    case 'b':
+      return back_source;
+    case 'r':
+      return rigth_source;
+    case 'u':
+      return up_source;
+    case 'd':
+      return down_source;
+    }
+    return {};
   }
 
   float_vector create_vertices_without_texture(float_vector n_center){
@@ -91,9 +113,12 @@ public:
   void print_color(char notation){
     std::cout<<"color "<<side_color[notation]<<std::endl;
   }
+  
+  char get_color(char notation){
+    return side_color[notation];
+  }
 
   void update_side_color(char side_notation, float direction){
-    // std::cout<<"update_side_color "<<side_notation<<std::endl;
     std::map<char, char> temp_side_color(side_color);
     std::vector<char> swaps_moves(8);
     if(side_notation=='l' || side_notation=='r'){
