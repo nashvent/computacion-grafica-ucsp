@@ -7,7 +7,7 @@
 #include <string>
 #include <bits/stdc++.h>
 #include "utils.h"
-
+// Used https://www.npmjs.com/package/rubiks-cube-solver
 std::string exec(std::string command)
 {
   char buffer[128];
@@ -25,7 +25,7 @@ std::string exec(std::string command)
       result += buffer;
   }
   pclose(pipe);
-  return result;
+  return trim(result);
 }
 
 std::vector<std::string> get_solution(std::string state)
@@ -34,6 +34,9 @@ std::vector<std::string> get_solution(std::string state)
   std::string command = "node solver/app.js " + state;
   std::cout << "command " << command << std::endl;
   std::string output = exec(command);
+  if(output.empty()){
+    return {};
+  }
   return parse_solution(output);
 }
 

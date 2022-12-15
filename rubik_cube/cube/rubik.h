@@ -189,7 +189,6 @@ public:
   void update_draw(){
     if(rotation_remaining == 0 && solution.size() > 0) {
       std::string current_movement = solution[0];
-      std::cout<<"current_movement "<<current_movement<<std::endl;
       solution.erase(solution.begin());
       set_movement(current_movement);
     }
