@@ -19,7 +19,7 @@
 #define ROTATION_STEP 10
 
 #define limit 50
-
+#define init_limit 20.0
 class CubeSide{
   public:
   char axis;
@@ -131,9 +131,14 @@ public:
   std::map<char, int> map_sides;
   std::vector<Cube*> all_cubes;
   std::vector<Cube*> cubes_to_move;
+
+  // Intro vars
+  std::vector<Cube*> intro_movement_cubes;
+  // float intro_movement_remaining = 0;
+  std::vector<float> intro_movement_remaining;
+
   // Locked movement vars
   int rotation_remaining = 0;
-  int solution_in_progress = 0;
   std::vector<std::string> solution;
   float direction = 1.0f;
   int side_index = 0;
@@ -187,6 +192,36 @@ public:
   }
 
   void update_draw(){
+    ///////////////////////////////////////
+    // Introduction movement
+    ///////////////////////////////////////
+    if(intro_movement_cubes.size()>0){
+      // float current_move_step = get_random_difference(intro_movement_remaining[0], init_limit);
+      // intro_movement_remaining[0] = intro_movement_remaining[0] + current_move_step;
+      MatrixTransform* t_matrix = new MatrixTransform(mult_vector_by_num(intro_movement_cubes[0]->center, -0.1),'t');
+      std::cout<<"intro_movement_remaining[0] "<<intro_movement_remaining[0]<<std::endl;
+      intro_movement_remaining[0] = intro_movement_remaining[0] + 0.1;
+      intro_movement_cubes[0]->update_vertices_without_texture(t_matrix->multiply(intro_movement_cubes[0]->get_vertices_without_texture()));
+      intro_movement_cubes[0]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(10.0f, 'x', intro_movement_cubes[0]->get_vertices_without_texture()));
+      intro_movement_cubes[0]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(10.0f, 'z', intro_movement_cubes[0]->get_vertices_without_texture()));
+      // intro_movement_cubes[i]->update_vertices_without_texture(MatrixCubeRotate::rotate(10, 'y', intro_movement_cubes[i]->center, intro_movement_cubes[i]->get_vertices_without_texture()));
+      // intro_movement_cubes[i]->update_vertices_without_texture(sum_matrix_vector(intro_movement_cubes[i]->get_vertices_without_texture(), mult_vector_by_num(intro_movement_cubes[i]->center, -0.01)));
+      if(intro_movement_remaining[0] >= 10){
+        //intro_movement_cubes[i]->update_vertices_without_texture
+        // intro_movement_remaining[0]->create_vertices_without_texture();
+        intro_movement_cubes[0]->update_vertices_without_texture(intro_movement_cubes[0]->create_vertices_without_texture(intro_movement_cubes[0]->center));
+        intro_movement_cubes.erase(intro_movement_cubes.begin());
+        intro_movement_remaining.erase(intro_movement_remaining.begin());
+      }
+
+      float_vector all_vertices = get_all_vertices();
+      glBindBuffer(GL_ARRAY_BUFFER, VBO);
+      glBufferData(GL_ARRAY_BUFFER, all_vertices.size() * sizeof(all_vertices[0]),  all_vertices.data(), GL_STATIC_DRAW);
+      return;
+    }
+
+
+
     if(rotation_remaining == 0 && solution.size() > 0) {
       std::string current_movement = solution[0];
       solution.erase(solution.begin());
@@ -248,6 +283,30 @@ public:
     return cubes_from_side;
   }
 
+  std::vector<Cube*> get_cubes_from_axis_center(char axis, float value){
+    std::vector<Cube*> cubes;
+    for(int i=0; i<all_cubes.size(); i++){
+      float axis_value;
+      switch (axis)
+      {
+      case 'x':
+        axis_value = all_cubes[i]->center[0];
+        break;
+      case 'y':
+        axis_value = all_cubes[i]->center[1];
+        break;
+      case 'z':
+        axis_value = all_cubes[i]->center[2];
+        break;
+      }
+      
+      if(axis_value == value){
+        cubes.push_back(all_cubes[i]);
+      }
+    }
+    return cubes;
+  }
+
   float_vector get_all_vertices(){
     float_vector all_vertices = {};
     for(int i=0; i<all_cubes.size(); i++){
@@ -266,23 +325,6 @@ public:
     side_index = n_side_index;
     rotation_remaining = ROTATION_THRESHOLD;
     cubes_to_move = get_cubes_from_side(side_index);
-  }
-
-  void set_movement(std::string move){
-    if(rotation_remaining > 0) {
-      std::cout<<"rotation in progress"<<std::endl;
-      return;
-    }
-    side_index = map_sides[move[0]];
-    
-    direction = get_direction_by_move(move[0]);
-
-    if(move.size()>1){
-      direction = direction * -1.0;
-    }
-    cubes_to_move = get_cubes_from_side(side_index);
-    rotation_remaining = ROTATION_THRESHOLD;
-    // std::cout<<"side_index "<<side_index<<std::endl;
   }
 
   float_vector get_center_by_notation(char notation){
@@ -382,8 +424,53 @@ public:
     return nullptr;
   }
 
+  // bool is_free_to_movement(){
+  //   return solution.size() == 0 && intro_movement_cubes.size() == 0;
+  // }
+
+  ///////////////////////
+  // SETTING MOVEMENTS
+  /////////////////////
+  void set_movement(std::string move){
+    if(rotation_remaining > 0 || intro_movement_cubes.size() != 0) {
+      std::cout<<"rotation in progress"<<std::endl;
+      return;
+    }
+    side_index = map_sides[move[0]];
+    
+    direction = get_direction_by_move(move[0]);
+
+    if(move.size()>1){
+      direction = direction * -1.0;
+    }
+    cubes_to_move = get_cubes_from_side(side_index);
+    rotation_remaining = ROTATION_THRESHOLD;
+    // std::cout<<"side_index "<<side_index<<std::endl;
+  }
+
   void set_solution(std::vector<std::string> n_solution){
     solution = n_solution;
+  }
+
+  void set_init_animation(){
+    intro_movement_cubes.clear();
+    intro_movement_remaining.clear();
+    std::vector<Cube*> first_cubes = get_cubes_from_axis_center('y', -1.0);
+    std::vector<Cube*> second_cubes = get_cubes_from_axis_center('y', 0.0);
+    std::vector<Cube*> third_cubes = get_cubes_from_axis_center('y', 1.0);
+    intro_movement_cubes.insert( intro_movement_cubes.end(), first_cubes.begin(), first_cubes.end() );
+    intro_movement_cubes.insert( intro_movement_cubes.end(), second_cubes.begin(), second_cubes.end() );
+    intro_movement_cubes.insert( intro_movement_cubes.end(), third_cubes.begin(), third_cubes.end() );
+    float value_to_translate = 20.0;
+
+    for(int i=0; i<intro_movement_cubes.size(); i++){
+      MatrixTransform* t_matrix = new MatrixTransform(mult_vector_by_num( intro_movement_cubes[i]->center, 10.0), 't');
+      intro_movement_cubes[i]->update_vertices_without_texture(t_matrix->multiply(intro_movement_cubes[i]->get_vertices_without_texture()));
+      // MatrixTransform* t_matrix_2 = new MatrixTransform(intro_movement_cubes[i]->center[2] * value_to_translate, 'z', 't');
+      // intro_movement_cubes[i]->update_vertices_without_texture(sum_matrix_vector(intro_movement_cubes[i]->get_vertices_without_texture(), mult_vector_by_num(intro_movement_cubes[i]->center, 20.0)));
+      intro_movement_remaining.push_back(0);
+    }
+    // std::vector<float> n_intro_movement_remain(intro_movement_cubes.size(), 0);
   }
 };
 

@@ -244,8 +244,21 @@ class MatrixTransform{
 };
 
 
+std::vector<float> get_centroid(std::vector<float> vertex){
+  std::vector<float> centroid = {0,0,0};
+  for(int i=0; i<vertex.size(); i+=3){
+    centroid[0] = centroid[0] + vertex[i];
+    centroid[1] = centroid[1] + vertex[i+1];
+    centroid[2] = centroid[2] + vertex[i+2];
+  }
+  centroid[0] = centroid[0] / (vertex.size()/3);
+  centroid[1] = centroid[1] / (vertex.size()/3);
+  centroid[2] = centroid[2] / (vertex.size()/3);
+  return centroid;
+}
+
 struct MatrixCubeRotate{
-  static std::vector<float> rotate(float value, float axis, std::vector<float> center, std::vector<float> new_vertices){
+  static std::vector<float> rotate(float value, char axis, std::vector<float> center, std::vector<float> new_vertices){
     MatrixTransform* rotate_matrix = new MatrixTransform(value, axis, 'r');
     MatrixTransform* translate_back = new MatrixTransform(center, 't');
     MatrixTransform* translate_forward = new MatrixTransform(mult_vector_by_num(center, -1.0f), 't');
@@ -261,6 +274,11 @@ struct MatrixCubeRotate{
     std::vector<float> values = mult_vector_by_num(n_values, per_value);
     MatrixTransform* translate_matrix = new MatrixTransform(values, 't');
     return translate_matrix->multiply(new_vertices);
+  }
+
+  static std::vector<float> rotate_in_own_eye(float value, char axis, std::vector<float> new_vertices){
+    std::vector<float> centroid = get_centroid(new_vertices);
+    return rotate(value, axis, centroid, new_vertices);
   }
 };
 

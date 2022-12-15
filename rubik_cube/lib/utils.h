@@ -45,6 +45,19 @@ std::string trim(const std::string &s)
   return rtrim(ltrim(s));
 }
 
+float random_float(float min, float max)
+{
+    // this  function assumes max > min, you may want 
+    // more robust error checking for a non-debug build
+    assert(max > min); 
+    float random = ((float) rand()) / (float) RAND_MAX;
+
+    // generate (in your case) a float between 0 and (4.5-.78)
+    // then add .78, giving you a float between .78 and 4.5
+    float range = max - min;  
+    return (random*range) + min;
+}
+
 std::vector<std::string> split_string(std::string s, std::string delimiter = " "){
   std::vector<std::string> splited;
   size_t pos = 0;
@@ -125,6 +138,13 @@ std::vector<std::string> parse_solution_kociemba(std::string solution)
     parsed_sol.push_back(parsed_token);
   }
   return parsed_sol;
+}
+
+float get_random_difference(float current_value, float limit_value){
+  if(current_value + 0.5 >= limit_value){
+    return 0.05;
+  }
+  return random_float(0.001, 0.499);
 }
 
 #endif

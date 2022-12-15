@@ -97,19 +97,14 @@ int main()
     // ------------------------------------
     Shader ourShader("rubik_cube.vs", "rubik_cube.fs");
 
-    // float_vector center = {0.0f, 0.0f, 0.0f};
-    // string_vector colors = {"g", "r", "b", "o", "w", "y"};
-    // Cube *cube = new Cube(center, colors);
-
-
     unsigned int VBO, VAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
 
     glBindVertexArray(VAO);
     rubikCube = new RubikCube(VBO);
-
     rubikCube->draw();
+    rubikCube->set_init_animation();
 
     // glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // glBufferData(GL_ARRAY_BUFFER, cube->vertices.size() * sizeof(cube->vertices[0]),  cube->vertices.data(), GL_STATIC_DRAW);
@@ -196,8 +191,8 @@ int main()
         // render boxes
         glBindVertexArray(VAO);
         glm::mat4 model = glm::mat4(1.0f);
-          
-        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        float time_value = (float)glfwGetTime() * 0.1f;
+        model = glm::rotate(model, time_value, glm::vec3(0.0f, 1.0f, 0.0f));
         // float angle = 0.0f;
         // model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         ourShader.setMat4("model", model);
@@ -293,20 +288,4 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
       print_vector(solution);
       rubikCube->set_solution(solution);
     }
-
-    /*
-    if(key == GLFW_KEY_A){
-      std::cout<<"KEY A rotation"<<std::endl;
-      rubikCube->set_rotation(camada_selected, 1.0f);
-    }
-    if(key == GLFW_KEY_D){
-      std::cout<<"KEY D rotation"<<std::endl;
-      rubikCube->set_rotation(camada_selected, -1.0f);
-    }
-    
-    if(key == GLFW_KEY_0 || key == GLFW_KEY_1 || key == GLFW_KEY_2 || key == GLFW_KEY_3 || key == GLFW_KEY_4 || key == GLFW_KEY_5){
-      camada_selected = key - 48;
-      std::cout<<"Camada seleccionada "<<camada_selected<<std::endl; 
-    }
-    */
 }
