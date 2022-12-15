@@ -9,6 +9,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "kociemba": "^1.0.1",
     "rubiks-cube-solver": "^1.2.0"
   }
 }

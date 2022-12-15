@@ -28,16 +28,17 @@ std::string exec(std::string command)
   return trim(result);
 }
 
-std::vector<std::string> get_solution(std::string state)
+// order "frudlb"
+std::vector<std::string> get_solution_fridrich(std::string state)
 {
   // ffbfffrbbdrlrrrddbudbuuuuulddrbdlldurllulldlfurfbbbrff
-  std::string command = "node solver/app.js " + state;
+  std::string command = "node solver/fridrich.js " + state;
   std::cout << "command " << command << std::endl;
   std::string output = exec(command);
   if(output.empty()){
     return {};
   }
-  return parse_solution(output);
+  return parse_solution_fridrich(output);
 }
 
 #endif

@@ -281,14 +281,14 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 
     if(key == GLFW_KEY_SPACE){
-      std::string order_notation = "frudlb";
+      std::string order_notation = "frudlb"; //"frudlb";
       std::vector<char> colors_notation = rubikCube->get_sides_status_notation(order_notation);
       std::string color_notation_str = "";
       for(int i=0;i<colors_notation.size();i++){
         color_notation_str += colors_notation[i];
 	    }
       std::cout<<color_notation_str<<std::endl;
-      std::vector<std::string> solution = get_solution(color_notation_str);
+      std::vector<std::string> solution = get_solution_fridrich(color_notation_str);
       print_vector(solution);
       rubikCube->set_solution(solution);
     }
