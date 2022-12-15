@@ -55,8 +55,8 @@ void heartbeat_monitor(){
 
 void print_instructions(){
     std::cout<<"Instructions para manejar"<<std::endl;
-    std::cout<<"Para seleccionar camada presionar los numeros de 0 a 5"<<std::endl;
-    std::cout<<"Para rotar presionar la tecla A y D"<<std::endl;
+    std::cout<<"Para mover camada presionar las letras de F, B, U, D, R, L"<<std::endl;
+    std::cout<<"Para resolver el cubo presionar la barra espaciadora"<<std::endl;
 }
 
 int main()
@@ -190,15 +190,16 @@ int main()
         float camY = static_cast<float>(glm::radians(camera_step_y));
         float camZ = static_cast<float>(cos(camera_step_z) * radius);
         view = glm::lookAt(glm::vec3(camX, camY, camZ), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 4.0f, 0.0f));
+        // view = glm::translate(view, glm::vec3(0.0f, 0.0f, -8.0f));
         ourShader.setMat4("view", view);
 
         // render boxes
         glBindVertexArray(VAO);
         glm::mat4 model = glm::mat4(1.0f);
           
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
-        float angle = 0.0f;
-        model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+        model = glm::rotate(model, (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        // float angle = 0.0f;
+        // model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
         ourShader.setMat4("model", model);
         // heartbeat_monitor();
         rubikCube->update_draw();
