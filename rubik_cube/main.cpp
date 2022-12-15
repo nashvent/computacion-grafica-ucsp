@@ -288,4 +288,8 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
       print_vector(solution);
       rubikCube->set_solution(solution);
     }
+
+    if ( key == GLFW_KEY_ENTER ){
+      rubikCube->set_out_animation();
+    }
 }

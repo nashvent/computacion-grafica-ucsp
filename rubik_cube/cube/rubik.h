@@ -136,6 +136,7 @@ public:
   std::vector<Cube*> intro_movement_cubes;
   // float intro_movement_remaining = 0;
   std::vector<float> intro_movement_remaining;
+  float intro_direction = 1.0f;
 
   // Locked movement vars
   int rotation_remaining = 0;
@@ -193,25 +194,24 @@ public:
 
   void update_draw(){
     ///////////////////////////////////////
-    // Introduction movement
+    // Introduction / ending movement
     ///////////////////////////////////////
     if(intro_movement_cubes.size()>0){
-      // float current_move_step = get_random_difference(intro_movement_remaining[0], init_limit);
-      // intro_movement_remaining[0] = intro_movement_remaining[0] + current_move_step;
-      MatrixTransform* t_matrix = new MatrixTransform(mult_vector_by_num(intro_movement_cubes[0]->center, -0.1),'t');
-      std::cout<<"intro_movement_remaining[0] "<<intro_movement_remaining[0]<<std::endl;
+      MatrixTransform* t_matrix = new MatrixTransform(mult_vector_by_num(intro_movement_cubes[0]->center, -0.1 * intro_direction),'t');
       intro_movement_remaining[0] = intro_movement_remaining[0] + 0.1;
       intro_movement_cubes[0]->update_vertices_without_texture(t_matrix->multiply(intro_movement_cubes[0]->get_vertices_without_texture()));
       intro_movement_cubes[0]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(10.0f, 'x', intro_movement_cubes[0]->get_vertices_without_texture()));
       intro_movement_cubes[0]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(10.0f, 'z', intro_movement_cubes[0]->get_vertices_without_texture()));
-      // intro_movement_cubes[i]->update_vertices_without_texture(MatrixCubeRotate::rotate(10, 'y', intro_movement_cubes[i]->center, intro_movement_cubes[i]->get_vertices_without_texture()));
-      // intro_movement_cubes[i]->update_vertices_without_texture(sum_matrix_vector(intro_movement_cubes[i]->get_vertices_without_texture(), mult_vector_by_num(intro_movement_cubes[i]->center, -0.01)));
       if(intro_movement_remaining[0] >= 10){
-        //intro_movement_cubes[i]->update_vertices_without_texture
-        // intro_movement_remaining[0]->create_vertices_without_texture();
-        intro_movement_cubes[0]->update_vertices_without_texture(intro_movement_cubes[0]->create_vertices_without_texture(intro_movement_cubes[0]->center));
+        if(intro_direction > 0.0){
+          intro_movement_cubes[0]->update_vertices_without_texture(intro_movement_cubes[0]->create_vertices_without_texture(intro_movement_cubes[0]->center));
+        }
         intro_movement_cubes.erase(intro_movement_cubes.begin());
         intro_movement_remaining.erase(intro_movement_remaining.begin());
+
+        // if(intro_direction < 0.0 && intro_movement_cubes.size() == 0){
+        //   glfwSetWindowShouldClose(window, true);
+        // }
       }
 
       float_vector all_vertices = get_all_vertices();
@@ -461,16 +461,33 @@ public:
     intro_movement_cubes.insert( intro_movement_cubes.end(), first_cubes.begin(), first_cubes.end() );
     intro_movement_cubes.insert( intro_movement_cubes.end(), second_cubes.begin(), second_cubes.end() );
     intro_movement_cubes.insert( intro_movement_cubes.end(), third_cubes.begin(), third_cubes.end() );
-    float value_to_translate = 20.0;
+    float value_to_translate = 10.0;
 
     for(int i=0; i<intro_movement_cubes.size(); i++){
-      MatrixTransform* t_matrix = new MatrixTransform(mult_vector_by_num( intro_movement_cubes[i]->center, 10.0), 't');
+      MatrixTransform* t_matrix = new MatrixTransform(mult_vector_by_num( intro_movement_cubes[i]->center, value_to_translate), 't');
       intro_movement_cubes[i]->update_vertices_without_texture(t_matrix->multiply(intro_movement_cubes[i]->get_vertices_without_texture()));
+      intro_movement_cubes[i]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(random_float(1.0f, 20.0f), 'x', intro_movement_cubes[i]->get_vertices_without_texture()));
+      intro_movement_cubes[i]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(random_float(1.0f, 20.0f), 'z', intro_movement_cubes[i]->get_vertices_without_texture()));
       // MatrixTransform* t_matrix_2 = new MatrixTransform(intro_movement_cubes[i]->center[2] * value_to_translate, 'z', 't');
       // intro_movement_cubes[i]->update_vertices_without_texture(sum_matrix_vector(intro_movement_cubes[i]->get_vertices_without_texture(), mult_vector_by_num(intro_movement_cubes[i]->center, 20.0)));
       intro_movement_remaining.push_back(0);
     }
     // std::vector<float> n_intro_movement_remain(intro_movement_cubes.size(), 0);
+  }
+
+  void set_out_animation(){
+    intro_movement_cubes.clear();
+    intro_movement_remaining.clear();
+    std::vector<Cube*> first_cubes = get_cubes_from_axis_center('y', 1.0);
+    std::vector<Cube*> second_cubes = get_cubes_from_axis_center('y', 0.0);
+    std::vector<Cube*> third_cubes = get_cubes_from_axis_center('y', -1.0);
+    intro_movement_cubes.insert( intro_movement_cubes.end(), first_cubes.begin(), first_cubes.end() );
+    intro_movement_cubes.insert( intro_movement_cubes.end(), second_cubes.begin(), second_cubes.end() );
+    intro_movement_cubes.insert( intro_movement_cubes.end(), third_cubes.begin(), third_cubes.end() );
+    intro_direction = -1.0f;
+    for(int i=0; i<intro_movement_cubes.size(); i++){
+      intro_movement_remaining.push_back(0);
+    }
   }
 };
 
