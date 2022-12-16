@@ -200,8 +200,8 @@ public:
       MatrixTransform* t_matrix = new MatrixTransform(mult_vector_by_num(intro_movement_cubes[0]->center, -0.1 * intro_direction),'t');
       intro_movement_remaining[0] = intro_movement_remaining[0] + 0.1;
       intro_movement_cubes[0]->update_vertices_without_texture(t_matrix->multiply(intro_movement_cubes[0]->get_vertices_without_texture()));
-      intro_movement_cubes[0]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(10.0f, 'x', intro_movement_cubes[0]->get_vertices_without_texture()));
-      intro_movement_cubes[0]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(10.0f, 'z', intro_movement_cubes[0]->get_vertices_without_texture()));
+      intro_movement_cubes[0]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(random_float(10.0f, 20.0f), 'x', intro_movement_cubes[0]->get_vertices_without_texture()));
+      intro_movement_cubes[0]->update_vertices_without_texture(MatrixCubeRotate::rotate_in_own_eye(random_float(10.0f, 20.0f), 'z', intro_movement_cubes[0]->get_vertices_without_texture()));
       if(intro_movement_remaining[0] >= 10){
         if(intro_direction > 0.0){
           intro_movement_cubes[0]->update_vertices_without_texture(intro_movement_cubes[0]->create_vertices_without_texture(intro_movement_cubes[0]->center));
